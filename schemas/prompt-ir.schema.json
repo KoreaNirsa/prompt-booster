@@ -1,0 +1,378 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KoreaNirsa/prompt-booster/schemas/prompt-ir.schema.json",
+  "title": "PromptRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "sourceText",
+    "intent",
+    "context",
+    "requirements",
+    "constraints",
+    "outputSpec",
+    "validationRules",
+    "qualityScore"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Prompt IR 계약 버전입니다."
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "요청을 식별하는 안정적인 ID입니다."
+    },
+    "sourceText": {
+      "type": "string",
+      "minLength": 1,
+      "description": "사용자가 입력한 원문 요청입니다."
+    },
+    "intent": {
+      "$ref": "#/$defs/Intent"
+    },
+    "context": {
+      "$ref": "#/$defs/PromptContext"
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/Requirement"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Constraint"
+      }
+    },
+    "outputSpec": {
+      "$ref": "#/$defs/OutputSpec"
+    },
+    "validationRules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/ValidationRule"
+      }
+    },
+    "qualityScore": {
+      "$ref": "#/$defs/PromptQualityScore"
+    }
+  },
+  "$defs": {
+    "Intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "action",
+        "primaryDomain",
+        "relatedDomains"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "요청 의도를 한 문장으로 요약합니다."
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "implement",
+            "design",
+            "review",
+            "debug",
+            "document",
+            "deploy",
+            "optimize"
+          ],
+          "description": "요청의 대표 작업 유형입니다."
+        },
+        "primaryDomain": {
+          "$ref": "#/$defs/Domain"
+        },
+        "relatedDomains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Domain"
+          },
+          "uniqueItems": true,
+          "description": "요청을 렌더링하거나 보강할 때 함께 고려할 도메인입니다."
+        }
+      }
+    },
+    "PromptContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "audience",
+        "projectState",
+        "techStack",
+        "assumptions"
+      ],
+      "properties": {
+        "audience": {
+          "type": "string",
+          "minLength": 1,
+          "description": "최종 프롬프트를 받을 대상 역할입니다."
+        },
+        "projectState": {
+          "type": "string",
+          "minLength": 1,
+          "description": "현재 프로젝트 상태 또는 전제입니다."
+        },
+        "techStack": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "명시되었거나 Analyzer가 확인한 기술 스택입니다."
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "프롬프트 보강에 사용되는 명시적 가정입니다."
+        }
+      }
+    },
+    "Requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "description",
+        "priority",
+        "acceptanceCriteria"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^REQ-[0-9]+$"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "functional",
+            "nonFunctional",
+            "security",
+            "data",
+            "integration",
+            "testing",
+            "documentation"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "must",
+            "should",
+            "could"
+          ]
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "Constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "scope",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^CON-[0-9]+$"
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "security",
+            "performance",
+            "maintainability",
+            "compatibility",
+            "architecture",
+            "testing",
+            "deployment",
+            "style"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "OutputSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "sections"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": [
+            "markdown",
+            "json",
+            "yaml",
+            "code",
+            "mixed"
+          ]
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/OutputSection"
+          }
+        }
+      }
+    },
+    "OutputSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "description",
+        "required"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ValidationRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "severity"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^VAL-[0-9]+$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        }
+      }
+    },
+    "PromptQualityScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "max",
+        "criteria"
+      ],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "max": {
+          "type": "integer",
+          "const": 100
+        },
+        "criteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/QualityCriterion"
+          }
+        }
+      }
+    },
+    "QualityCriterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "score",
+        "max",
+        "reason"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": [
+            "role",
+            "requirement",
+            "constraint",
+            "context",
+            "outputFormat",
+            "validation",
+            "technicalSpecificity"
+          ]
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Domain": {
+      "type": "string",
+      "enum": [
+        "backend",
+        "frontend",
+        "ai",
+        "devops",
+        "architecture"
+      ]
+    }
+  }
+}

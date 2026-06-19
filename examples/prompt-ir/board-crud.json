@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example-board-crud",
+  "sourceText": "게시판 CRUD를 만들어주세요.",
+  "intent": {
+    "summary": "게시글 생성, 조회, 수정, 삭제 기능과 화면 연동 범위를 정의합니다.",
+    "action": "implement",
+    "primaryDomain": "backend",
+    "relatedDomains": [
+      "frontend",
+      "architecture"
+    ]
+  },
+  "context": {
+    "audience": "풀스택 개발자",
+    "projectState": "게시판 기능을 신규 모듈로 추가하는 단계입니다.",
+    "techStack": [
+      "REST API",
+      "Relational Database",
+      "React"
+    ],
+    "assumptions": [
+      "게시글은 제목, 내용, 작성자, 생성일, 수정일을 가집니다.",
+      "목록 조회에는 페이지네이션이 필요합니다."
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "category": "functional",
+      "description": "게시글 생성, 단건 조회, 목록 조회, 수정, 삭제 API를 제공합니다.",
+      "priority": "must",
+      "acceptanceCriteria": [
+        "각 API는 성공과 실패 응답 형식을 구분합니다.",
+        "삭제된 게시글은 일반 조회에서 제외됩니다."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "category": "data",
+      "description": "게시글 목록은 페이지 번호와 페이지 크기로 조회할 수 있습니다.",
+      "priority": "must",
+      "acceptanceCriteria": [
+        "페이지 응답에는 전체 개수와 현재 페이지 정보가 포함됩니다."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "category": "functional",
+      "description": "프론트엔드에서 목록, 상세, 작성, 수정 화면을 연결할 수 있도록 응답 구조를 정의합니다.",
+      "priority": "should",
+      "acceptanceCriteria": [
+        "화면에서 필요한 필드가 API 응답에 포함됩니다."
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "CON-1",
+      "scope": "architecture",
+      "description": "Controller, Service, Repository 책임을 분리합니다."
+    },
+    {
+      "id": "CON-2",
+      "scope": "testing",
+      "description": "CRUD 성공 경로와 주요 예외 경로를 테스트합니다."
+    }
+  ],
+  "outputSpec": {
+    "format": "mixed",
+    "sections": [
+      {
+        "title": "API 명세",
+        "description": "CRUD 엔드포인트, 요청 DTO, 응답 DTO를 정의합니다.",
+        "required": true
+      },
+      {
+        "title": "데이터 모델",
+        "description": "게시글 엔티티와 저장소 접근 방식을 설명합니다.",
+        "required": true
+      },
+      {
+        "title": "프론트엔드 연동",
+        "description": "목록, 상세, 작성, 수정 화면에서 사용할 응답 필드를 설명합니다.",
+        "required": true
+      },
+      {
+        "title": "테스트",
+        "description": "API와 서비스 계층 테스트 범위를 포함합니다.",
+        "required": true
+      }
+    ]
+  },
+  "validationRules": [
+    {
+      "id": "VAL-1",
+      "description": "생성, 조회, 수정, 삭제 흐름이 모두 포함되어 있는지 확인합니다.",
+      "severity": "error"
+    },
+    {
+      "id": "VAL-2",
+      "description": "페이지네이션 응답에 전체 개수와 페이지 정보가 포함되어 있는지 확인합니다.",
+      "severity": "warning"
+    }
+  ],
+  "qualityScore": {
+    "total": 89,
+    "max": 100,
+    "criteria": [
+      {
+        "name": "role",
+        "score": 10,
+        "max": 10,
+        "reason": "풀스택 개발자 대상이 명확합니다."
+      },
+      {
+        "name": "requirement",
+        "score": 24,
+        "max": 25,
+        "reason": "CRUD와 페이지네이션 요구사항이 분리되어 있습니다."
+      },
+      {
+        "name": "constraint",
+        "score": 16,
+        "max": 20,
+        "reason": "계층 분리와 테스트 제약이 포함되어 있습니다."
+      },
+      {
+        "name": "context",
+        "score": 13,
+        "max": 15,
+        "reason": "기본 데이터 필드는 명시되었지만 인증 정책은 별도 요청으로 남아 있습니다."
+      },
+      {
+        "name": "outputFormat",
+        "score": 10,
+        "max": 10,
+        "reason": "API, 데이터 모델, 프론트엔드 연동 섹션이 정의되어 있습니다."
+      },
+      {
+        "name": "validation",
+        "score": 9,
+        "max": 10,
+        "reason": "CRUD와 페이지 응답 검증 규칙이 포함되어 있습니다."
+      },
+      {
+        "name": "technicalSpecificity",
+        "score": 7,
+        "max": 10,
+        "reason": "REST와 React 맥락은 있으나 구체 프레임워크 버전은 없습니다."
+      }
+    ]
+  }
+}

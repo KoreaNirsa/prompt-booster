@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example-rag-chatbot",
+  "sourceText": "RAG 챗봇을 구현해주세요.",
+  "intent": {
+    "summary": "문서 검색 기반 답변을 생성하는 RAG 챗봇을 설계하고 구현합니다.",
+    "action": "implement",
+    "primaryDomain": "ai",
+    "relatedDomains": [
+      "backend",
+      "devops",
+      "architecture"
+    ]
+  },
+  "context": {
+    "audience": "AI 애플리케이션 개발자",
+    "projectState": "문서 기반 질의응답 기능을 신규 서비스로 구현하는 단계입니다.",
+    "techStack": [
+      "LLM",
+      "Embedding",
+      "Vector Database",
+      "REST API",
+      "Docker"
+    ],
+    "assumptions": [
+      "문서는 임베딩 후 벡터 저장소에 저장합니다.",
+      "답변에는 검색 근거를 함께 제공합니다."
+    ]
+  },
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "category": "functional",
+      "description": "사용자 질문을 임베딩하고 관련 문서를 검색합니다.",
+      "priority": "must",
+      "acceptanceCriteria": [
+        "질문과 유사한 문서 조각이 검색 결과로 반환됩니다."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "category": "functional",
+      "description": "검색 결과를 기반으로 답변을 생성합니다.",
+      "priority": "must",
+      "acceptanceCriteria": [
+        "답변은 검색된 근거를 벗어난 단정을 피합니다.",
+        "근거 문서가 부족하면 모른다고 답합니다."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "category": "integration",
+      "description": "임베딩 모델, 벡터 데이터베이스, LLM 호출 경계를 분리합니다.",
+      "priority": "should",
+      "acceptanceCriteria": [
+        "각 외부 의존성은 교체 가능한 어댑터로 표현됩니다."
+      ]
+    }
+  ],
+  "constraints": [
+    {
+      "id": "CON-1",
+      "scope": "architecture",
+      "description": "검색, 생성, 외부 모델 호출 책임을 분리합니다."
+    },
+    {
+      "id": "CON-2",
+      "scope": "deployment",
+      "description": "로컬 실행을 위한 컨테이너 구성을 포함합니다."
+    },
+    {
+      "id": "CON-3",
+      "scope": "performance",
+      "description": "문서 검색 개수와 토큰 사용량을 조정할 수 있어야 합니다."
+    }
+  ],
+  "outputSpec": {
+    "format": "mixed",
+    "sections": [
+      {
+        "title": "아키텍처",
+        "description": "질문 처리, 검색, 생성, 응답 반환 흐름을 설명합니다.",
+        "required": true
+      },
+      {
+        "title": "데이터 흐름",
+        "description": "문서 적재, 임베딩, 검색, 답변 생성 과정을 정의합니다.",
+        "required": true
+      },
+      {
+        "title": "어댑터 경계",
+        "description": "LLM, 임베딩, 벡터 데이터베이스 의존성 교체 지점을 설명합니다.",
+        "required": true
+      },
+      {
+        "title": "운영 설정",
+        "description": "Docker 실행과 환경 변수 구성을 포함합니다.",
+        "required": true
+      }
+    ]
+  },
+  "validationRules": [
+    {
+      "id": "VAL-1",
+      "description": "답변이 검색 근거를 참조하도록 프롬프트가 구성되어 있는지 확인합니다.",
+      "severity": "error"
+    },
+    {
+      "id": "VAL-2",
+      "description": "외부 모델 호출 실패와 빈 검색 결과 처리가 포함되어 있는지 확인합니다.",
+      "severity": "error"
+    }
+  ],
+  "qualityScore": {
+    "total": 94,
+    "max": 100,
+    "criteria": [
+      {
+        "name": "role",
+        "score": 10,
+        "max": 10,
+        "reason": "AI 애플리케이션 개발자 대상이 명확합니다."
+      },
+      {
+        "name": "requirement",
+        "score": 24,
+        "max": 25,
+        "reason": "검색, 생성, 통합 경계 요구사항이 분리되어 있습니다."
+      },
+      {
+        "name": "constraint",
+        "score": 19,
+        "max": 20,
+        "reason": "아키텍처, 배포, 성능 제약이 포함되어 있습니다."
+      },
+      {
+        "name": "context",
+        "score": 15,
+        "max": 15,
+        "reason": "RAG 구성 요소와 실행 전제가 명확합니다."
+      },
+      {
+        "name": "outputFormat",
+        "score": 10,
+        "max": 10,
+        "reason": "아키텍처와 운영 설정 산출물이 정의되어 있습니다."
+      },
+      {
+        "name": "validation",
+        "score": 10,
+        "max": 10,
+        "reason": "근거 기반 답변과 실패 처리 검증이 포함되어 있습니다."
+      },
+      {
+        "name": "technicalSpecificity",
+        "score": 6,
+        "max": 10,
+        "reason": "구성 요소는 명확하지만 특정 벡터 데이터베이스 제품은 지정하지 않았습니다."
+      }
+    ]
+  }
+}
