@@ -46,6 +46,12 @@ EXPECTED_DEVOPS_PATTERNS = {
     "devops.github-actions",
     "devops.aws-deployment",
 }
+EXPECTED_ARCHITECTURE_PATTERNS = {
+    "architecture.clean",
+    "architecture.hexagonal",
+    "architecture.ddd",
+    "architecture.msa",
+}
 
 
 def load_schema_validator():
@@ -76,6 +82,7 @@ def main():
     require(EXPECTED_FRONTEND_PATTERNS <= pattern_ids, "필수 프론트엔드 패턴이 누락되었습니다.")
     require(EXPECTED_AI_PATTERNS <= pattern_ids, "필수 AI 패턴이 누락되었습니다.")
     require(EXPECTED_DEVOPS_PATTERNS <= pattern_ids, "필수 DevOps 패턴이 누락되었습니다.")
+    require(EXPECTED_ARCHITECTURE_PATTERNS <= pattern_ids, "필수 아키텍처 패턴이 누락되었습니다.")
     print("Prompt Pattern Library 정의가 유효합니다.")
 
 

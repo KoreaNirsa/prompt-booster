@@ -42,6 +42,12 @@ EXPECTED_DEVOPS_PATTERN_IDS = {
     "devops.github-actions",
     "devops.aws-deployment",
 }
+EXPECTED_ARCHITECTURE_PATTERN_IDS = {
+    "architecture.clean",
+    "architecture.hexagonal",
+    "architecture.ddd",
+    "architecture.msa",
+}
 
 
 def load_default_payload():
@@ -212,6 +218,39 @@ class PatternLibraryTest(unittest.TestCase):
         self.assertIn("재현 가능한 명령", ci_defaults)
         self.assertIn("실패 진단", ci_defaults)
 
+    def test_architecture_pattern_templates_exist_with_matching_metadata(self):
+        library = PatternLibrary.load_default()
+        pattern_ids = {pattern.id for pattern in library.patterns}
+
+        self.assertTrue(EXPECTED_ARCHITECTURE_PATTERN_IDS <= pattern_ids)
+        for pattern_id in EXPECTED_ARCHITECTURE_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                pattern = library.get(pattern_id)
+
+                self.assertEqual("architecture", pattern.category)
+                self.assertTrue(pattern.keywords)
+                self.assertTrue(pattern.matching_metadata.intent_hints)
+                self.assertTrue(pattern.matching_metadata.domain_signals)
+                self.assertGreaterEqual(pattern.matching_metadata.confidence_weight, 1)
+                self.assertLessEqual(pattern.matching_metadata.confidence_weight, 5)
+
+    def test_architecture_patterns_include_boundary_dependency_and_tradeoff(self):
+        library = PatternLibrary.load_default()
+
+        for pattern_id in EXPECTED_ARCHITECTURE_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                defaults = library.get(pattern_id).to_prompt_defaults().to_dict()
+                serialized = json.dumps(defaults, ensure_ascii=False).casefold()
+
+                self.assertIn("module boundary", serialized)
+                self.assertIn("dependency rule", serialized)
+                self.assertIn("tradeoff analysis", serialized)
+                self.assertIn("validation criteria", serialized)
+                self.assertTrue("diagram" in serialized or "구조화된 목록" in serialized)
+        msa_defaults = json.dumps(library.get("architecture.msa").to_prompt_defaults().to_dict(), ensure_ascii=False).casefold()
+        for term in ("service boundary", "data ownership", "communication style", "failure-mode"):
+            self.assertIn(term, msa_defaults)
+
     def test_default_pattern_matches_analyzer_result(self):
         text = "Implement JWT login API"
         library = PatternLibrary.load_default()
@@ -286,6 +325,18 @@ class PatternLibraryTest(unittest.TestCase):
         self.assertIn("environment variable", serialized.casefold())
         self.assertIn("재현 가능한 명령", serialized)
         self.assertIn("실패 진단", serialized)
+
+    def test_architecture_prompt_is_augmented_by_pattern_defaults(self):
+        result = optimize_prompt("Clean Architecture module boundary 설계해줘")
+        clean_match = next(match for match in result.pattern_matches if match.pattern.id == "architecture.clean")
+        defaults = clean_match.pattern.to_prompt_defaults().to_dict()
+        serialized = json.dumps(defaults, ensure_ascii=False).casefold()
+
+        self.assertTrue(result.ok)
+        self.assertIn("module boundary", serialized)
+        self.assertIn("dependency rule", serialized)
+        self.assertIn("tradeoff analysis", serialized)
+        self.assertIn("validation criteria", serialized)
 
     def test_pattern_definition_fails_fast_without_keywords(self):
         payload = load_default_payload()
