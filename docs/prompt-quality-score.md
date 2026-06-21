@@ -32,3 +32,5 @@
 - `weak`: 해당 항목의 점수가 최대 점수보다 낮습니다.
 
 Prompt IR 내부 `qualityScore`는 기존 스키마 계약을 유지하기 위해 총점과 항목별 breakdown만 포함합니다. 원본 입력과 최적화된 출력의 진단 정보는 Optimizer 결과의 `sourceQualityScore`, `optimizedQualityScore`에서 제공합니다.
+
+품질 회귀를 확인하기 위한 benchmark set과 성공 지표는 [`quality-benchmarks.md`](quality-benchmarks.md)에 정리되어 있습니다.

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Prompt-Booster 품질 벤치마크 세트입니다.",
+  "evaluation": {
+    "target": "neutral",
+    "localCommand": "python tools/evaluate_quality_benchmarks.py",
+    "manualReview": "자동화 전에는 각 case의 최소 섹션, quality score 기대값, 성공 지표 설명을 기준으로 결과를 검토합니다."
+  },
+  "successMetrics": [
+    {
+      "id": "requirement_omission_reduction",
+      "name": "요구사항 누락 감소",
+      "measurement": "최적화된 Prompt IR의 requirements와 output sections가 benchmark의 minimumSections를 모두 포함하는지 확인합니다."
+    },
+    {
+      "id": "output_quality_improvement",
+      "name": "출력 품질 향상",
+      "measurement": "optimized quality score가 benchmark의 optimizedMin 이상인지 확인합니다."
+    },
+    {
+      "id": "revision_request_reduction",
+      "name": "추가 수정 요청 감소",
+      "measurement": "constraints와 validationRules가 테스트, 오류 처리, 보안, 운영 조건을 포함해 재질문 가능성을 줄이는지 확인합니다."
+    },
+    {
+      "id": "productivity_improvement",
+      "name": "생산성 향상",
+      "measurement": "source score 대비 optimized score 개선폭이 benchmark의 improvementMin 이상인지 확인합니다."
+    }
+  ],
+  "cases": [
+    {
+      "id": "backend-jwt-login",
+      "domain": "backend",
+      "sourceText": "JWT 로그인 만들어줘",
+      "expectedIntent": "code_generation",
+      "expectedCategory": "backend",
+      "minimumSections": ["구현 목표", "핵심 변경 사항", "검증 계획", "프로젝트 구조", "핵심 코드", "테스트"],
+      "qualityExpectations": {
+        "sourceMax": 35,
+        "optimizedMin": 90,
+        "improvementMin": 60
+      }
+    },
+    {
+      "id": "frontend-dashboard",
+      "domain": "frontend",
+      "sourceText": "React 대시보드 만들어줘",
+      "expectedIntent": "code_generation",
+      "expectedCategory": "frontend",
+      "minimumSections": ["구현 목표", "핵심 변경 사항", "검증 계획", "File Structure", "Components", "Tests"],
+      "qualityExpectations": {
+        "sourceMax": 35,
+        "optimizedMin": 90,
+        "improvementMin": 60
+      }
+    },
+    {
+      "id": "ai-rag-chatbot",
+      "domain": "ai",
+      "sourceText": "RAG 챗봇 구현해줘",
+      "expectedIntent": "code_generation",
+      "expectedCategory": "ai",
+      "minimumSections": ["구현 목표", "핵심 변경 사항", "검증 계획", "Retrieval Design", "Generation Flow", "Validation Criteria", "Observability"],
+      "qualityExpectations": {
+        "sourceMax": 35,
+        "optimizedMin": 90,
+        "improvementMin": 60
+      }
+    },
+    {
+      "id": "devops-github-actions",
+      "domain": "devops",
+      "sourceText": "GitHub Actions CI 배포 만들어줘",
+      "expectedIntent": "devops",
+      "expectedCategory": "devops",
+      "minimumSections": ["작업 목표", "실행 계획", "검증 기준", "Workflow Contract", "Reproducible Commands", "Secret Handling", "Operational Checks"],
+      "qualityExpectations": {
+        "sourceMax": 35,
+        "optimizedMin": 90,
+        "improvementMin": 60
+      }
+    },
+    {
+      "id": "architecture-clean-boundary",
+      "domain": "architecture",
+      "sourceText": "Clean Architecture 모듈 경계 설계해줘",
+      "expectedIntent": "architecture",
+      "expectedCategory": "architecture",
+      "minimumSections": ["작업 목표", "실행 계획", "검증 기준", "Architecture Diagram", "Module Boundary", "Tradeoff Analysis", "Validation Criteria"],
+      "qualityExpectations": {
+        "sourceMax": 35,
+        "optimizedMin": 90,
+        "improvementMin": 60
+      }
+    }
+  ]
+}
