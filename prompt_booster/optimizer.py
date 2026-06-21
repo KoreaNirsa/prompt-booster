@@ -6,6 +6,7 @@ import hashlib
 from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
 from .prompt_renderer import PromptRenderer
+from .quality_score import PromptQualityReport, PromptQualityScorer
 from .rif_engine import RifEngine, RifOutput
 
 
@@ -36,6 +37,8 @@ class OptimizerResult:
     target: str
     analysis: AnalyzerResult | None
     clarification_questions: tuple[ClarificationQuestion, ...]
+    source_quality_score: PromptQualityReport | None
+    optimized_quality_score: PromptQualityReport | None
     prompt_ir: dict[str, object] | None
     rendered_prompt: str | None
     errors: tuple[ValidationIssue, ...]
@@ -51,6 +54,8 @@ class OptimizerResult:
             "target": self.target,
             "analysis": self.analysis.to_dict() if self.analysis else None,
             "clarificationQuestions": [question.to_dict() for question in self.clarification_questions],
+            "sourceQualityScore": self.source_quality_score.to_dict() if self.source_quality_score else None,
+            "optimizedQualityScore": self.optimized_quality_score.to_dict() if self.optimized_quality_score else None,
             "promptIr": self.prompt_ir,
             "renderedPrompt": self.rendered_prompt,
             "errors": [error.to_dict() for error in self.errors],
@@ -65,11 +70,13 @@ class PromptOptimizer:
         rif_engine: RifEngine | None = None,
         renderer: PromptRenderer | None = None,
         adaptive_grill: AdaptiveGrillMe | None = None,
+        quality_scorer: PromptQualityScorer | None = None,
     ) -> None:
         self._analyzer = analyzer or IntentAnalyzer()
         self._rif_engine = rif_engine or RifEngine()
         self._renderer = renderer or PromptRenderer()
         self._adaptive_grill = adaptive_grill or AdaptiveGrillMe()
+        self._quality_scorer = quality_scorer or PromptQualityScorer()
 
     def optimize(self, source_text: str, target: str | None = None) -> OptimizerResult:
         selected_target = target or "neutral"
@@ -80,6 +87,8 @@ class PromptOptimizer:
                 target=selected_target,
                 analysis=None,
                 clarification_questions=(),
+                source_quality_score=None,
+                optimized_quality_score=None,
                 prompt_ir=None,
                 rendered_prompt=None,
                 errors=(validation_error,),
@@ -88,12 +97,15 @@ class PromptOptimizer:
 
         pipeline_steps = ["validate_input", "analyze_intent"]
         analysis = self._analyzer.analyze(source_text)
+        source_quality_score = self._quality_scorer.score_source_text(source_text, analysis)
         if analysis.fallback.used:
             return OptimizerResult(
                 source_text=source_text,
                 target=selected_target,
                 analysis=analysis,
                 clarification_questions=(),
+                source_quality_score=source_quality_score,
+                optimized_quality_score=None,
                 prompt_ir=None,
                 rendered_prompt=self._render_recovery_prompt(source_text, analysis),
                 errors=(
@@ -121,6 +133,8 @@ class PromptOptimizer:
             rif=rif,
             constraint_output=constraint_output,
         )
+        optimized_quality_score = self._quality_scorer.score_prompt_ir(prompt_ir)
+        prompt_ir["qualityScore"] = optimized_quality_score.to_prompt_ir_score()
 
         pipeline_steps.append("render_prompt")
         rendered_prompt = self._renderer.render(prompt_ir)
@@ -130,6 +144,8 @@ class PromptOptimizer:
             target=selected_target,
             analysis=analysis,
             clarification_questions=clarification_questions,
+            source_quality_score=source_quality_score,
+            optimized_quality_score=optimized_quality_score,
             prompt_ir=prompt_ir,
             rendered_prompt=rendered_prompt,
             errors=(),
@@ -251,7 +267,6 @@ class PromptOptimizer:
                 "sections": [section.to_dict() for section in rif.format_sections],
             },
             "validationRules": list(constraint_output.validation_rules),
-            "qualityScore": self._quality_score_for(analysis),
         }
 
     def _requirements_for(self, rif: RifOutput, analysis: AnalyzerResult) -> list[dict[str, object]]:
@@ -325,27 +340,6 @@ class PromptOptimizer:
             Category.ARCHITECTURE: ["Boundary", "Dependency Rule", "Tradeoff"],
         }
         return stacks[category or Category.BACKEND]
-
-    def _quality_score_for(self, analysis: AnalyzerResult) -> dict[str, object]:
-        total = max(0, min(100, int(round(analysis.confidence * 100))))
-        return {
-            "total": total,
-            "max": 100,
-            "criteria": [
-                {"name": "role", "score": 10, "max": 10, "reason": "category 기반 역할을 생성했습니다."},
-                {"name": "requirement", "score": 20, "max": 25, "reason": "기본 요구사항을 구조화했습니다."},
-                {"name": "constraint", "score": 16, "max": 20, "reason": "공통 및 도메인 제약조건을 주입했습니다."},
-                {"name": "context", "score": 12, "max": 15, "reason": "Analyzer 결과와 target 정보를 유지했습니다."},
-                {"name": "outputFormat", "score": 10, "max": 10, "reason": "Markdown 출력 섹션을 정의했습니다."},
-                {"name": "validation", "score": 9, "max": 10, "reason": "자체 검증 규칙을 포함했습니다."},
-                {
-                    "name": "technicalSpecificity",
-                    "score": max(0, total - 77),
-                    "max": 10,
-                    "reason": "Analyzer confidence를 기술 구체성 보조 지표로 반영했습니다.",
-                },
-            ],
-        }
 
     def _stable_id(self, source_text: str, target: str) -> str:
         digest = hashlib.sha1(f"{target}\n{source_text}".encode("utf-8")).hexdigest()[:12]

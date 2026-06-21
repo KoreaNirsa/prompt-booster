@@ -80,6 +80,8 @@ class PromptOptimizerTest(unittest.TestCase):
         self.assertEqual("ai", payload["analysis"]["category"])
         self.assertIn("promptIr", payload)
         self.assertIn("renderedPrompt", payload)
+        self.assertIn("sourceQualityScore", payload)
+        self.assertIn("optimizedQualityScore", payload)
         self.assertEqual([], payload["errors"])
 
     def test_generated_prompt_ir_matches_schema_contract(self):

@@ -15,6 +15,12 @@ from .optimizer import (
     optimize_prompt,
 )
 from .prompt_renderer import PromptRenderer
+from .quality_score import (
+    PromptQualityReport,
+    PromptQualityScorer,
+    QualityCriterion,
+    QualityDiagnostic,
+)
 from .rif_engine import RifEngine, RifFormatSection, RifInstruction, RifOutput, RifRole
 
 __all__ = [
@@ -27,6 +33,10 @@ __all__ = [
     "IntentType",
     "MatchedSignal",
     "OptimizerResult",
+    "PromptQualityReport",
+    "PromptQualityScorer",
+    "QualityCriterion",
+    "QualityDiagnostic",
     "PromptOptimizer",
     "PromptRenderer",
     "RifEngine",
