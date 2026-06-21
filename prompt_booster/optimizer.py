@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import hashlib
 
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
+from .rif_engine import RifEngine, RifOutput
 
 
 SUPPORTED_TARGETS = frozenset({"neutral", "codex"})
@@ -22,47 +23,9 @@ class ValidationIssue:
 
 
 @dataclass(frozen=True)
-class RifOutput:
-    role: str
-    instruction: str
-    format_sections: tuple[str, ...]
-
-
-@dataclass(frozen=True)
 class ConstraintOutput:
     constraints: tuple[dict[str, str], ...]
     validation_rules: tuple[dict[str, str], ...]
-
-
-class RifEngine:
-    def generate(self, source_text: str, analysis: AnalyzerResult) -> RifOutput:
-        category = analysis.category or Category.BACKEND
-        intent = analysis.intent or IntentType.CODE_GENERATION
-        return RifOutput(
-            role=self._role_for(category),
-            instruction=self._instruction_for(source_text, intent, category),
-            format_sections=(
-                "Role",
-                "Instruction",
-                "Requirements",
-                "Constraints",
-                "Output Format",
-                "Validation",
-            ),
-        )
-
-    def _role_for(self, category: Category) -> str:
-        roles = {
-            Category.BACKEND: "백엔드 개발자",
-            Category.FRONTEND: "프론트엔드 개발자",
-            Category.AI: "AI 애플리케이션 개발자",
-            Category.DEVOPS: "DevOps 엔지니어",
-            Category.ARCHITECTURE: "소프트웨어 아키텍트",
-        }
-        return roles[category]
-
-    def _instruction_for(self, source_text: str, intent: IntentType, category: Category) -> str:
-        return f"'{source_text}' 요청을 {category.value} 도메인의 {intent.value} 작업으로 수행할 수 있게 구체화합니다."
 
 
 @dataclass(frozen=True)
@@ -255,7 +218,7 @@ class PromptOptimizer:
                 "relatedDomains": self._related_domains_for(analysis.category),
             },
             "context": {
-                "audience": rif.role,
+                "audience": rif.role.title,
                 "projectState": "사용자 원문 요청을 Prompt-Booster 파이프라인에서 최적화하는 단계입니다.",
                 "techStack": self._tech_stack_for(analysis.category),
                 "assumptions": [
@@ -267,14 +230,7 @@ class PromptOptimizer:
             "constraints": list(constraint_output.constraints),
             "outputSpec": {
                 "format": "markdown",
-                "sections": [
-                    {
-                        "title": section,
-                        "description": f"{section} 섹션을 렌더링합니다.",
-                        "required": True,
-                    }
-                    for section in rif.format_sections
-                ],
+                "sections": [section.to_dict() for section in rif.format_sections],
             },
             "validationRules": list(constraint_output.validation_rules),
             "qualityScore": self._quality_score_for(analysis),
@@ -285,12 +241,9 @@ class PromptOptimizer:
             {
                 "id": "REQ-1",
                 "category": "functional",
-                "description": rif.instruction,
+                "description": rif.instruction.objective,
                 "priority": "must",
-                "acceptanceCriteria": [
-                    "원본 사용자 요청의 목적이 최종 프롬프트에 유지됩니다.",
-                    "감지된 intent와 category가 구조화된 IR에 포함됩니다.",
-                ],
+                "acceptanceCriteria": list(rif.instruction.expectations),
             },
             {
                 "id": "REQ-2",
@@ -298,7 +251,8 @@ class PromptOptimizer:
                 "description": "Role, Instruction, Format 기반 프롬프트 구조를 생성합니다.",
                 "priority": "must",
                 "acceptanceCriteria": [
-                    "렌더링된 프롬프트에 RIF 기반 섹션이 포함됩니다.",
+                    f"{section.title} 섹션은 {section.description}"
+                    for section in rif.format_sections
                 ],
             },
             {
@@ -318,6 +272,7 @@ class PromptOptimizer:
         constraints = prompt_ir["constraints"]
         output_sections = prompt_ir["outputSpec"]["sections"]
         validations = prompt_ir["validationRules"]
+        instruction_expectations = requirements[0]["acceptanceCriteria"]
 
         return "\n".join(
             [
@@ -328,6 +283,7 @@ class PromptOptimizer:
                 "",
                 "## Instruction",
                 str(requirements[0]["description"]),
+                *[f"- {expectation}" for expectation in instruction_expectations],
                 "",
                 "## Requirements",
                 *[f"- {requirement['description']}" for requirement in requirements],
