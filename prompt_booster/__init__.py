@@ -10,10 +10,10 @@ from .intent_analyzer import (
 from .optimizer import (
     OptimizerResult,
     PromptOptimizer,
-    RifEngine,
     ValidationIssue,
     optimize_prompt,
 )
+from .rif_engine import RifEngine, RifFormatSection, RifInstruction, RifOutput, RifRole
 
 __all__ = [
     "AnalyzerResult",
@@ -25,6 +25,10 @@ __all__ = [
     "OptimizerResult",
     "PromptOptimizer",
     "RifEngine",
+    "RifFormatSection",
+    "RifInstruction",
+    "RifOutput",
+    "RifRole",
     "ValidationIssue",
     "analyze_intent",
     "optimize_prompt",
