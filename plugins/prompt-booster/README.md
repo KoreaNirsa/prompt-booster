@@ -27,6 +27,8 @@ python plugins/prompt-booster/scripts/prompt_booster_command.py prompt.optimize 
 
 지원 target은 `neutral`, `codex`, `claude_code`입니다.
 
+사용자용 실행 가이드는 [`docs/codex-plugin-usage.md`](../../docs/codex-plugin-usage.md)에 정리되어 있습니다.
+
 ## Local Validation
 
 ```bash
