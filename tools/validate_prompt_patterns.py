@@ -27,6 +27,12 @@ EXPECTED_BACKEND_PATTERNS = {
     "backend.batch-processing",
     "backend.scheduler",
 }
+EXPECTED_FRONTEND_PATTERNS = {
+    "frontend.react-spa",
+    "frontend.nextjs",
+    "frontend.dashboard",
+    "frontend.admin-page",
+}
 
 
 def load_schema_validator():
@@ -54,6 +60,7 @@ def main():
     require(library.patterns, "패턴 정의가 비어 있습니다.")
     pattern_ids = {pattern.id for pattern in library.patterns}
     require(EXPECTED_BACKEND_PATTERNS <= pattern_ids, "필수 백엔드 패턴이 누락되었습니다.")
+    require(EXPECTED_FRONTEND_PATTERNS <= pattern_ids, "필수 프론트엔드 패턴이 누락되었습니다.")
     print("Prompt Pattern Library 정의가 유효합니다.")
 
 

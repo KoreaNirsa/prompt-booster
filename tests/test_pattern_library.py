@@ -23,6 +23,12 @@ EXPECTED_BACKEND_PATTERN_IDS = {
     "backend.batch-processing",
     "backend.scheduler",
 }
+EXPECTED_FRONTEND_PATTERN_IDS = {
+    "frontend.react-spa",
+    "frontend.nextjs",
+    "frontend.dashboard",
+    "frontend.admin-page",
+}
 
 
 def load_default_payload():
@@ -86,6 +92,40 @@ class PatternLibraryTest(unittest.TestCase):
         self.assertIn("영속성", serialized)
         self.assertIn("테스트", serialized)
 
+    def test_frontend_pattern_templates_exist_with_matching_metadata(self):
+        library = PatternLibrary.load_default()
+        pattern_ids = {pattern.id for pattern in library.patterns}
+
+        self.assertTrue(EXPECTED_FRONTEND_PATTERN_IDS <= pattern_ids)
+        for pattern_id in EXPECTED_FRONTEND_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                pattern = library.get(pattern_id)
+
+                self.assertEqual("frontend", pattern.category)
+                self.assertTrue(pattern.keywords)
+                self.assertTrue(pattern.matching_metadata.intent_hints)
+                self.assertTrue(pattern.matching_metadata.domain_signals)
+                self.assertGreaterEqual(pattern.matching_metadata.confidence_weight, 1)
+                self.assertLessEqual(pattern.matching_metadata.confidence_weight, 5)
+
+    def test_frontend_patterns_include_ui_and_output_expectations(self):
+        library = PatternLibrary.load_default()
+
+        for pattern_id in EXPECTED_FRONTEND_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                defaults = library.get(pattern_id).to_prompt_defaults().to_dict()
+                serialized = json.dumps(defaults, ensure_ascii=False).casefold()
+
+                self.assertIn("routing", serialized)
+                self.assertIn("loading/error/empty states", serialized)
+                self.assertIn("component organization", serialized)
+                self.assertIn("file structure", serialized)
+                self.assertIn("components", serialized)
+                self.assertIn("tests", serialized)
+                self.assertIn("styling approach", serialized)
+                self.assertIn("responsive layout", serialized)
+                self.assertTrue("accessibility" in serialized or "접근성" in serialized)
+
     def test_default_pattern_matches_analyzer_result(self):
         text = "Implement JWT login API"
         library = PatternLibrary.load_default()
@@ -119,6 +159,23 @@ class PatternLibraryTest(unittest.TestCase):
         self.assertIn("Refresh Token", serialized)
         self.assertIn("secret", serialized)
         self.assertIn("토큰 만료", serialized)
+
+    def test_frontend_prompts_are_augmented_by_pattern_defaults(self):
+        cases = (
+            ("React SPA 만들어줘", "frontend.react-spa", ("routing", "state", "loading/error/empty states")),
+            ("dashboard 화면 만들어줘", "frontend.dashboard", ("filter", "chart", "responsive layout")),
+        )
+
+        for source_text, pattern_id, expected_terms in cases:
+            with self.subTest(pattern=pattern_id):
+                result = optimize_prompt(source_text)
+                match = next(match for match in result.pattern_matches if match.pattern.id == pattern_id)
+                defaults = match.pattern.to_prompt_defaults().to_dict()
+                serialized = json.dumps(defaults, ensure_ascii=False).casefold()
+
+                self.assertTrue(result.ok)
+                for term in expected_terms:
+                    self.assertIn(term, serialized)
 
     def test_pattern_definition_fails_fast_without_keywords(self):
         payload = load_default_payload()
