@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 import hashlib
 from os import PathLike
@@ -145,6 +145,10 @@ class PromptOptimizer:
             rif=rif,
             constraint_output=constraint_output,
         )
+
+        pipeline_steps.append("apply_pattern_defaults")
+        prompt_ir = self._apply_pattern_defaults(prompt_ir, pattern_matches)
+
         optimized_quality_score = self._quality_scorer.score_prompt_ir(prompt_ir)
         prompt_ir["qualityScore"] = optimized_quality_score.to_prompt_ir_score()
 
@@ -311,6 +315,162 @@ class PromptOptimizer:
                 ],
             },
         ]
+
+    def _apply_pattern_defaults(
+        self,
+        prompt_ir: dict[str, object],
+        pattern_matches: tuple[PatternMatch, ...],
+    ) -> dict[str, object]:
+        if not pattern_matches:
+            return prompt_ir
+
+        merged = dict(prompt_ir)
+        context = dict(self._mapping(merged.get("context")))
+        assumptions = list(self._text_items(context.get("assumptions")))
+        assumptions.append(
+            "적용된 패턴: "
+            + ", ".join(match.pattern.id for match in self._ranked_pattern_matches(pattern_matches))
+        )
+
+        requirements = list(self._mapping_items(merged.get("requirements")))
+        constraints = list(self._mapping_items(merged.get("constraints")))
+        output_spec = dict(self._mapping(merged.get("outputSpec")))
+        output_sections = list(self._mapping_items(output_spec.get("sections")))
+        validation_rules = list(self._mapping_items(merged.get("validationRules")))
+        pattern_formats: list[tuple[str, str]] = []
+
+        for match in self._ranked_pattern_matches(pattern_matches):
+            defaults = match.pattern.to_prompt_defaults()
+            requirements.extend(defaults.requirements)
+            constraints.extend(defaults.constraints)
+            output_sections.extend(self._mapping_items(defaults.output_spec.get("sections")))
+            validation_rules.extend(defaults.validation_rules)
+            pattern_formats.append((match.pattern.id, str(defaults.output_spec["format"])))
+
+        output_format, format_conflicts = self._resolve_output_format(
+            current_format=str(output_spec.get("format", "markdown")),
+            pattern_formats=tuple(pattern_formats),
+        )
+        if format_conflicts:
+            assumptions.append(
+                "패턴 출력 형식 충돌은 "
+                f"{pattern_formats[0][0]}의 {output_format} 추천값으로 결정합니다: "
+                + ", ".join(f"{pattern_id}={format_name}" for pattern_id, format_name in format_conflicts)
+            )
+
+        context["assumptions"] = self._dedupe_texts(assumptions)
+        output_spec["format"] = output_format
+        output_spec["sections"] = self._dedupe_output_sections(output_sections)
+        merged["context"] = context
+        merged["requirements"] = self._dedupe_items_with_ids(requirements, "REQ", self._requirement_key)
+        merged["constraints"] = self._dedupe_items_with_ids(constraints, "CON", self._constraint_key)
+        merged["outputSpec"] = output_spec
+        merged["validationRules"] = self._dedupe_items_with_ids(validation_rules, "VAL", self._validation_rule_key)
+        return merged
+
+    def _ranked_pattern_matches(self, pattern_matches: tuple[PatternMatch, ...]) -> tuple[PatternMatch, ...]:
+        return tuple(sorted(pattern_matches, key=lambda match: (match.rank or 9999, -match.score, match.pattern.id)))
+
+    def _resolve_output_format(
+        self,
+        current_format: str,
+        pattern_formats: tuple[tuple[str, str], ...],
+    ) -> tuple[str, tuple[tuple[str, str], ...]]:
+        if not pattern_formats:
+            return current_format, ()
+
+        _, selected_format = pattern_formats[0]
+        conflicts = tuple(
+            (pattern_id, format_name)
+            for pattern_id, format_name in pattern_formats[1:]
+            if format_name != selected_format
+        )
+        return selected_format, conflicts
+
+    def _dedupe_items_with_ids(
+        self,
+        items: Sequence[Mapping[str, object]],
+        prefix: str,
+        key_factory: Callable[[Mapping[str, object]], tuple[object, ...]],
+    ) -> list[dict[str, object]]:
+        deduped: list[dict[str, object]] = []
+        seen: set[tuple[object, ...]] = set()
+        for item in items:
+            key = key_factory(item)
+            if key in seen:
+                continue
+            seen.add(key)
+            next_item = dict(item)
+            next_item["id"] = f"{prefix}-{len(deduped) + 1}"
+            deduped.append(next_item)
+        return deduped
+
+    def _dedupe_output_sections(self, sections: Sequence[Mapping[str, object]]) -> list[dict[str, object]]:
+        deduped: list[dict[str, object]] = []
+        seen: set[tuple[object, ...]] = set()
+        for section in sections:
+            key = self._output_section_key(section)
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(dict(section))
+        return deduped
+
+    def _requirement_key(self, requirement: Mapping[str, object]) -> tuple[object, ...]:
+        return (
+            self._normalize_key(requirement.get("category")),
+            self._normalize_key(requirement.get("description")),
+            self._normalize_key(requirement.get("priority")),
+            tuple(self._normalize_key(item) for item in self._text_items(requirement.get("acceptanceCriteria"))),
+        )
+
+    def _constraint_key(self, constraint: Mapping[str, object]) -> tuple[object, ...]:
+        return (
+            self._normalize_key(constraint.get("scope")),
+            self._normalize_key(constraint.get("description")),
+        )
+
+    def _output_section_key(self, section: Mapping[str, object]) -> tuple[object, ...]:
+        return (
+            self._normalize_key(section.get("title")),
+            self._normalize_key(section.get("description")),
+            bool(section.get("required")),
+        )
+
+    def _validation_rule_key(self, rule: Mapping[str, object]) -> tuple[object, ...]:
+        return (
+            self._normalize_key(rule.get("severity")),
+            self._normalize_key(rule.get("description")),
+        )
+
+    def _mapping(self, value: object) -> Mapping[str, object]:
+        if isinstance(value, Mapping):
+            return value
+        return {}
+
+    def _mapping_items(self, value: object) -> tuple[Mapping[str, object], ...]:
+        if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            return ()
+        return tuple(item for item in value if isinstance(item, Mapping))
+
+    def _text_items(self, value: object) -> tuple[str, ...]:
+        if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            return ()
+        return tuple(str(item).strip() for item in value if str(item).strip())
+
+    def _dedupe_texts(self, values: Sequence[str]) -> list[str]:
+        result: list[str] = []
+        seen: set[str] = set()
+        for value in values:
+            key = self._normalize_key(value)
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            result.append(value)
+        return result
+
+    def _normalize_key(self, value: object) -> str:
+        return " ".join(str(value).casefold().split())
 
     def _render_recovery_prompt(self, source_text: str, analysis: AnalyzerResult) -> str:
         return "\n".join(

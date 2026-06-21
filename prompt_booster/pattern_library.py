@@ -184,12 +184,24 @@ class PromptPattern:
 class PatternMatch:
     pattern: PromptPattern
     matched_keywords: tuple[str, ...]
+    matched_domain_signals: tuple[str, ...] = ()
+    matched_intent_hints: tuple[str, ...] = ()
+    category_matched: bool = False
+    score: int = 0
+    confidence: float = 0.0
+    rank: int = 0
 
     def to_dict(self) -> dict[str, object]:
         return {
             "id": self.pattern.id,
             "category": self.pattern.category,
             "matchedKeywords": list(self.matched_keywords),
+            "matchedDomainSignals": list(self.matched_domain_signals),
+            "matchedIntentHints": list(self.matched_intent_hints),
+            "categoryMatched": self.category_matched,
+            "score": self.score,
+            "confidence": self.confidence,
+            "rank": self.rank,
         }
 
 
@@ -220,21 +232,58 @@ class PatternLibrary:
 
         normalized_source = _normalize(source_text)
         signal_keywords = {_normalize(signal.keyword) for signal in analysis.matched_signals}
-        category = analysis.category.value
+        category = analysis.category.value if analysis.category else None
+        intent = analysis.intent.value if analysis.intent else None
         matches: list[PatternMatch] = []
 
         for pattern in self.patterns:
             if pattern.category != category:
                 continue
-            matched_keywords = tuple(
-                keyword
-                for keyword in pattern.keywords
-                if _normalize(keyword) in normalized_source or _normalize(keyword) in signal_keywords
-            )
-            if matched_keywords:
-                matches.append(PatternMatch(pattern=pattern, matched_keywords=matched_keywords))
 
-        return tuple(matches)
+            matched_keywords = _match_terms(pattern.keywords, normalized_source, signal_keywords)
+            matched_domain_signals = _match_terms(
+                pattern.matching_metadata.domain_signals,
+                normalized_source,
+                signal_keywords,
+            )
+            if not matched_keywords and not matched_domain_signals:
+                continue
+
+            matched_intent_hints = (intent,) if intent in pattern.matching_metadata.intent_hints else ()
+            category_matched = pattern.category == category
+            score = _score_pattern_match(
+                pattern=pattern,
+                matched_keywords=matched_keywords,
+                matched_domain_signals=matched_domain_signals,
+                matched_intent_hints=matched_intent_hints,
+                category_matched=category_matched,
+            )
+            matches.append(
+                PatternMatch(
+                    pattern=pattern,
+                    matched_keywords=matched_keywords,
+                    matched_domain_signals=matched_domain_signals,
+                    matched_intent_hints=matched_intent_hints,
+                    category_matched=category_matched,
+                    score=score,
+                    confidence=_match_confidence(score, analysis.confidence),
+                )
+            )
+
+        ordered_matches = sorted(matches, key=lambda match: (-match.score, -match.confidence, match.pattern.id))
+        return tuple(
+            PatternMatch(
+                pattern=match.pattern,
+                matched_keywords=match.matched_keywords,
+                matched_domain_signals=match.matched_domain_signals,
+                matched_intent_hints=match.matched_intent_hints,
+                category_matched=match.category_matched,
+                score=match.score,
+                confidence=match.confidence,
+                rank=rank,
+            )
+            for rank, match in enumerate(ordered_matches, start=1)
+        )
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -497,3 +546,42 @@ def _require(condition: bool, message: str) -> None:
 
 def _normalize(text: str) -> str:
     return " ".join(text.casefold().split())
+
+
+def _match_terms(
+    terms: tuple[str, ...],
+    normalized_source: str,
+    signal_keywords: set[str],
+) -> tuple[str, ...]:
+    matched_terms: list[str] = []
+    seen: set[str] = set()
+    for term in terms:
+        normalized_term = _normalize(term)
+        if normalized_term in seen:
+            continue
+        if normalized_term in normalized_source or normalized_term in signal_keywords:
+            seen.add(normalized_term)
+            matched_terms.append(term)
+    return tuple(matched_terms)
+
+
+def _score_pattern_match(
+    pattern: PromptPattern,
+    matched_keywords: tuple[str, ...],
+    matched_domain_signals: tuple[str, ...],
+    matched_intent_hints: tuple[str, ...],
+    category_matched: bool,
+) -> int:
+    score = 0
+    score += len(matched_keywords) * 40
+    score += len(matched_domain_signals) * 25
+    score += len(matched_intent_hints) * 10
+    if category_matched:
+        score += 15
+    score += pattern.matching_metadata.confidence_weight * 3
+    return score
+
+
+def _match_confidence(score: int, analyzer_confidence: float) -> float:
+    confidence = 0.2 + (score / 200) + (max(0.0, min(1.0, analyzer_confidence)) * 0.15)
+    return round(min(0.99, confidence), 2)

@@ -261,6 +261,29 @@ class PatternLibraryTest(unittest.TestCase):
         self.assertIn("backend.jwt-auth", pattern_ids)
         jwt_match = next(match for match in matches if match.pattern.id == "backend.jwt-auth")
         self.assertIn("jwt", jwt_match.matched_keywords)
+        self.assertEqual(1, jwt_match.rank)
+        self.assertGreater(jwt_match.confidence, 0)
+
+    def test_default_pattern_match_returns_ranked_multi_pattern_result(self):
+        text = "Implement Spring Security JWT login API"
+        library = PatternLibrary.load_default()
+
+        matches = library.match(text, analyze_intent(text))
+        pattern_ids = [match.pattern.id for match in matches]
+
+        self.assertGreaterEqual(len(matches), 2)
+        self.assertEqual("backend.jwt-auth", pattern_ids[0])
+        self.assertIn("backend.spring-security", pattern_ids)
+        self.assertEqual(tuple(range(1, len(matches) + 1)), tuple(match.rank for match in matches))
+        self.assertTrue(all(match.confidence > 0 for match in matches))
+
+    def test_pattern_match_returns_empty_without_pattern_signal(self):
+        text = "Implement backend service"
+        library = PatternLibrary.load_default()
+
+        matches = library.match(text, analyze_intent(text))
+
+        self.assertEqual((), matches)
 
     def test_optimizer_loads_default_patterns_and_returns_matches(self):
         result = optimize_prompt("Implement JWT login API", target="codex")
@@ -272,6 +295,8 @@ class PatternLibraryTest(unittest.TestCase):
         payload_ids = {match["id"] for match in payload["patternMatches"]}
         self.assertIn("backend.jwt-auth", pattern_ids)
         self.assertIn("backend.jwt-auth", payload_ids)
+        self.assertIn("confidence", payload["patternMatches"][0])
+        self.assertIn("rank", payload["patternMatches"][0])
 
     def test_ambiguous_jwt_prompt_is_augmented_by_backend_pattern_defaults(self):
         result = optimize_prompt("JWT 로그인 만들어줘")
