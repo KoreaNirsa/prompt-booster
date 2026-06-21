@@ -682,6 +682,531 @@
           "claude"
         ]
       }
+    },
+    {
+      "id": "frontend.react-spa",
+      "category": "frontend",
+      "keywords": [
+        "react",
+        "spa",
+        "single page app",
+        "client routing",
+        "router",
+        "state management",
+        "frontend",
+        "화면",
+        "컴포넌트"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.routing": "React SPA의 client-side routing, route boundary, navigation fallback을 정의합니다.",
+          "acc.routing": "route별 page component와 공개/보호 화면, fallback 화면이 구분됩니다.",
+          "req.state": "feature state, server state, form state를 포함한 state handling 방식을 명시합니다.",
+          "acc.state": "loading/error/empty states가 데이터 흐름과 사용자 액션별로 연결됩니다.",
+          "req.components": "page, layout, feature, shared component organization을 정의합니다.",
+          "acc.components": "component ownership, props/state boundary, 재사용 컴포넌트 기준이 설명됩니다.",
+          "con.accessibility": "accessibility를 위해 interactive element는 keyboard navigation과 접근 가능한 이름을 제공합니다.",
+          "con.responsive": "responsive layout은 모바일과 데스크톱 주요 breakpoint에서 정보가 겹치지 않게 설계합니다.",
+          "section.structure.title": "File Structure",
+          "section.structure.description": "route, page, layout, feature, shared component 배치를 설명합니다.",
+          "section.components.title": "Components",
+          "section.components.description": "주요 component 역할, props, state ownership을 정리합니다.",
+          "section.tests.title": "Tests",
+          "section.tests.description": "routing, state handling, loading/error/empty states 검증 테스트를 포함합니다.",
+          "section.styling.title": "Styling Approach",
+          "section.styling.description": "전역 스타일, component style, responsive layout 전략을 설명합니다.",
+          "val.routing": "routing과 fallback 화면이 요구사항에 포함되어 있는지 확인합니다.",
+          "val.ui-states": "loading/error/empty states가 누락되지 않았는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.routing",
+          "acceptanceCriteriaRefs": [
+            "acc.routing"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.state",
+          "acceptanceCriteriaRefs": [
+            "acc.state"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.components",
+          "acceptanceCriteriaRefs": [
+            "acc.components"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "style",
+          "descriptionRef": "con.accessibility"
+        },
+        {
+          "scope": "compatibility",
+          "descriptionRef": "con.responsive"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.structure.title",
+            "descriptionRef": "section.structure.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.components.title",
+            "descriptionRef": "section.components.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.tests.title",
+            "descriptionRef": "section.tests.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.styling.title",
+            "descriptionRef": "section.styling.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.routing"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.ui-states"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "react",
+          "spa",
+          "routing",
+          "state management"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "frontend.nextjs",
+      "category": "frontend",
+      "keywords": [
+        "next.js",
+        "nextjs",
+        "app router",
+        "server component",
+        "ssr",
+        "page",
+        "프론트엔드",
+        "페이지"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.routing": "Next.js App Router의 routing, route segment, layout, loading/error/not-found boundary를 정의합니다.",
+          "acc.routing": "page, layout, route group, metadata 책임이 구분됩니다.",
+          "req.data": "server component와 client component 경계, data fetching, caching, state handling 전략을 명시합니다.",
+          "acc.data": "서버 데이터, client state, mutation 후 갱신 흐름이 구분됩니다.",
+          "req.components": "page, container, presentational component organization을 유지합니다.",
+          "acc.components": "client boundary가 필요한 컴포넌트만 client component로 분리됩니다.",
+          "con.accessibility": "accessibility를 위해 page heading, landmark, form label, focus state를 기준에 맞춥니다.",
+          "con.responsive": "responsive layout과 hydration 전후 화면 안정성을 고려합니다.",
+          "section.structure.title": "File Structure",
+          "section.structure.description": "app route, layout, loading, error, component, style 파일 배치를 설명합니다.",
+          "section.components.title": "Components",
+          "section.components.description": "server/client component 역할과 props 전달 방식을 정리합니다.",
+          "section.tests.title": "Tests",
+          "section.tests.description": "routing, data fetching, loading/error/empty states, interaction 테스트를 포함합니다.",
+          "section.styling.title": "Styling Approach",
+          "section.styling.description": "CSS module, utility class, design token 등 styling approach를 명시합니다.",
+          "val.boundary": "server/client component boundary가 불필요하게 넓지 않은지 확인합니다.",
+          "val.states": "loading/error/not-found/empty states가 route 수준에서 다뤄지는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.routing",
+          "acceptanceCriteriaRefs": [
+            "acc.routing"
+          ]
+        },
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.data",
+          "acceptanceCriteriaRefs": [
+            "acc.data"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "should",
+          "descriptionRef": "req.components",
+          "acceptanceCriteriaRefs": [
+            "acc.components"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "style",
+          "descriptionRef": "con.accessibility"
+        },
+        {
+          "scope": "compatibility",
+          "descriptionRef": "con.responsive"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.structure.title",
+            "descriptionRef": "section.structure.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.components.title",
+            "descriptionRef": "section.components.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.tests.title",
+            "descriptionRef": "section.tests.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.styling.title",
+            "descriptionRef": "section.styling.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.boundary"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.states"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "next.js",
+          "app router",
+          "server component",
+          "routing"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "frontend.dashboard",
+      "category": "frontend",
+      "keywords": [
+        "dashboard",
+        "metrics",
+        "chart",
+        "table",
+        "filter",
+        "analytics",
+        "대시보드",
+        "지표"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.information": "Dashboard routing, 핵심 지표, chart, table, filter 우선순위와 정보 계층을 정의합니다.",
+          "acc.information": "주요 KPI, 보조 지표, 상세 table, filter 영역이 구분됩니다.",
+          "req.state": "데이터 조회와 filter state, state handling, loading/error/empty states 처리 방식을 명시합니다.",
+          "acc.state": "초기 로딩, 부분 로딩, 오류, 데이터 없음 상태가 사용자 행동과 연결됩니다.",
+          "req.components": "widget, chart, table, filter, layout component organization을 정의합니다.",
+          "acc.components": "각 widget의 데이터 입력, fallback, 테스트 책임이 설명됩니다.",
+          "con.accessibility": "accessibility를 위해 chart와 table은 텍스트 대체 정보와 keyboard 접근 경로를 제공합니다.",
+          "con.responsive": "responsive layout은 카드, 표, 필터가 작은 화면에서 겹치지 않게 재배치합니다.",
+          "section.structure.title": "File Structure",
+          "section.structure.description": "dashboard route, widget, chart, table, filter, data 파일 배치를 설명합니다.",
+          "section.components.title": "Components",
+          "section.components.description": "KPI card, chart, table, filter component 역할을 정리합니다.",
+          "section.tests.title": "Tests",
+          "section.tests.description": "filter state, loading/error/empty states, chart fallback 테스트를 포함합니다.",
+          "section.styling.title": "Styling Approach",
+          "section.styling.description": "density, responsive grid, visual state styling approach를 설명합니다.",
+          "val.states": "Dashboard 데이터 상태가 loading/error/empty로 분리되는지 확인합니다.",
+          "val.accessibility": "chart와 table 정보를 보조 기술이 이해할 수 있는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.information",
+          "acceptanceCriteriaRefs": [
+            "acc.information"
+          ]
+        },
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.state",
+          "acceptanceCriteriaRefs": [
+            "acc.state"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "should",
+          "descriptionRef": "req.components",
+          "acceptanceCriteriaRefs": [
+            "acc.components"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "style",
+          "descriptionRef": "con.accessibility"
+        },
+        {
+          "scope": "compatibility",
+          "descriptionRef": "con.responsive"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.structure.title",
+            "descriptionRef": "section.structure.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.components.title",
+            "descriptionRef": "section.components.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.tests.title",
+            "descriptionRef": "section.tests.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.styling.title",
+            "descriptionRef": "section.styling.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.states"
+        },
+        {
+          "severity": "warning",
+          "descriptionRef": "val.accessibility"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "dashboard",
+          "metrics",
+          "chart",
+          "filter"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "frontend.admin-page",
+      "category": "frontend",
+      "keywords": [
+        "admin page",
+        "admin",
+        "management page",
+        "crud page",
+        "table form",
+        "관리자",
+        "관리 페이지",
+        "관리 화면"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.routing": "Admin Page의 protected routing, list/detail/create/edit flow를 정의합니다.",
+          "acc.routing": "권한이 필요한 route와 CRUD 화면 전환 조건이 구분됩니다.",
+          "req.state": "table, form, modal, mutation state, state handling, loading/error/empty states를 명시합니다.",
+          "acc.state": "저장 중, 저장 실패, 목록 없음, 검증 실패 상태가 사용자 액션별로 구분됩니다.",
+          "req.components": "page, table, form, toolbar, modal component organization을 정의합니다.",
+          "acc.components": "form validation, table pagination, action button 책임이 분리됩니다.",
+          "con.accessibility": "accessibility를 위해 form label, error message, dialog focus trap, button name을 기준에 맞춥니다.",
+          "con.responsive": "responsive layout은 table overflow, form grouping, action placement를 명확히 처리합니다.",
+          "section.structure.title": "File Structure",
+          "section.structure.description": "admin route, page, table, form, modal, service 파일 배치를 설명합니다.",
+          "section.components.title": "Components",
+          "section.components.description": "CRUD page component와 shared admin component 역할을 정리합니다.",
+          "section.tests.title": "Tests",
+          "section.tests.description": "protected routing, form validation, mutation, loading/error/empty states 테스트를 포함합니다.",
+          "section.styling.title": "Styling Approach",
+          "section.styling.description": "form layout, table density, responsive action styling approach를 명시합니다.",
+          "val.auth": "admin route 보호와 권한 없는 접근 처리가 요구사항에 포함되는지 확인합니다.",
+          "val.form": "form validation과 mutation 실패 상태가 분리되어 있는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.routing",
+          "acceptanceCriteriaRefs": [
+            "acc.routing"
+          ]
+        },
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.state",
+          "acceptanceCriteriaRefs": [
+            "acc.state"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "should",
+          "descriptionRef": "req.components",
+          "acceptanceCriteriaRefs": [
+            "acc.components"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "style",
+          "descriptionRef": "con.accessibility"
+        },
+        {
+          "scope": "compatibility",
+          "descriptionRef": "con.responsive"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.structure.title",
+            "descriptionRef": "section.structure.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.components.title",
+            "descriptionRef": "section.components.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.tests.title",
+            "descriptionRef": "section.tests.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.styling.title",
+            "descriptionRef": "section.styling.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.auth"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.form"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "admin",
+          "crud",
+          "form",
+          "protected route"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
     }
   ]
 }
