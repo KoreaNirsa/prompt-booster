@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "1.0.0",
+  "responseEnvelope": {
+    "required": ["ok", "command", "data", "error"],
+    "success": {
+      "ok": true,
+      "data": "object",
+      "error": null
+    },
+    "failure": {
+      "ok": false,
+      "data": null,
+      "error": {
+        "required": ["code", "message", "recoverable", "details"]
+      }
+    }
+  },
+  "supportedTargets": ["neutral", "codex"],
+  "commands": [
+    {
+      "name": "prompt.optimize",
+      "description": "사용자 원문을 분석하고 최적화된 프롬프트를 생성합니다.",
+      "input": {
+        "required": [
+          {
+            "name": "sourceText",
+            "type": "string",
+            "description": "최적화할 사용자 원문 요청입니다."
+          }
+        ],
+        "optional": [
+          {
+            "name": "target",
+            "type": "string",
+            "allowedValues": ["neutral", "codex"],
+            "default": "neutral",
+            "description": "렌더링 대상입니다."
+          },
+          {
+            "name": "includePromptIr",
+            "type": "boolean",
+            "default": false,
+            "description": "전체 Prompt IR 포함 여부입니다."
+          },
+          {
+            "name": "includeQualityScore",
+            "type": "boolean",
+            "default": true,
+            "description": "quality score 상세 포함 여부입니다."
+          }
+        ]
+      },
+      "output": {
+        "required": [
+          "renderedPrompt",
+          "promptIrSummary",
+          "matchedPatterns",
+          "clarificationQuestions"
+        ],
+        "optional": ["qualityScore", "promptIr"]
+      },
+      "errors": ["empty_input", "invalid_options", "unsupported_target"]
+    },
+    {
+      "name": "prompt.score",
+      "description": "원문 요청의 품질 점수와 진단 정보를 반환합니다.",
+      "input": {
+        "required": [
+          {
+            "name": "sourceText",
+            "type": "string",
+            "description": "점수화할 사용자 원문 요청입니다."
+          }
+        ],
+        "optional": []
+      },
+      "output": {
+        "required": ["analysis", "sourceQualityScore"],
+        "optional": []
+      },
+      "errors": ["empty_input", "invalid_options"]
+    },
+    {
+      "name": "prompt.explain",
+      "description": "Analyzer와 Optimizer가 어떤 근거로 결과를 만들었는지 설명합니다.",
+      "input": {
+        "required": [
+          {
+            "name": "sourceText",
+            "type": "string",
+            "description": "설명할 사용자 원문 요청입니다."
+          }
+        ],
+        "optional": [
+          {
+            "name": "target",
+            "type": "string",
+            "allowedValues": ["neutral", "codex"],
+            "default": "neutral",
+            "description": "렌더링 대상입니다."
+          }
+        ]
+      },
+      "output": {
+        "required": [
+          "analysis",
+          "matchedSignals",
+          "pipelineSteps",
+          "matchedPatterns",
+          "clarificationQuestions"
+        ],
+        "optional": []
+      },
+      "errors": ["empty_input", "invalid_options", "unsupported_target"]
+    },
+    {
+      "name": "prompt.patterns",
+      "description": "사용 가능한 Pattern Library 항목을 조회합니다.",
+      "input": {
+        "required": [],
+        "optional": [
+          {
+            "name": "category",
+            "type": "string",
+            "allowedValues": ["backend", "frontend", "ai", "devops", "architecture"],
+            "description": "조회할 pattern category입니다."
+          },
+          {
+            "name": "includeDefaults",
+            "type": "boolean",
+            "default": false,
+            "description": "pattern prompt defaults 포함 여부입니다."
+          },
+          {
+            "name": "locale",
+            "type": "string",
+            "description": "defaults 해석에 사용할 locale입니다."
+          }
+        ]
+      },
+      "output": {
+        "required": ["patterns"],
+        "optional": []
+      },
+      "errors": ["invalid_options"]
+    }
+  ],
+  "errors": [
+    {
+      "code": "empty_input",
+      "message": "sourceText가 비어 있습니다.",
+      "recoverable": true
+    },
+    {
+      "code": "invalid_options",
+      "message": "입력 옵션이 명령 계약과 일치하지 않습니다.",
+      "recoverable": true
+    },
+    {
+      "code": "unsupported_target",
+      "message": "지원하지 않는 target입니다.",
+      "recoverable": true
+    }
+  ]
+}
