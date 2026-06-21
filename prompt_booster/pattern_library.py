@@ -6,12 +6,13 @@ import json
 from os import PathLike
 from pathlib import Path
 
-from .intent_analyzer import AnalyzerResult, Category
+from .intent_analyzer import AnalyzerResult, Category, IntentType
 
 
 DEFAULT_PATTERN_PATH = Path(__file__).resolve().parents[1] / "patterns" / "core.json"
 SUPPORTED_PATTERN_SCHEMA_VERSION = "1.0.0"
 SUPPORTED_CATEGORIES = tuple(category.value for category in Category)
+SUPPORTED_INTENT_HINTS = tuple(intent.value for intent in IntentType)
 REQUIREMENT_CATEGORIES = (
     "functional",
     "nonFunctional",
@@ -73,6 +74,20 @@ class PatternValidationTemplate:
 
 
 @dataclass(frozen=True)
+class PatternMatchingMetadata:
+    intent_hints: tuple[str, ...]
+    domain_signals: tuple[str, ...]
+    confidence_weight: int
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "intentHints": list(self.intent_hints),
+            "domainSignals": list(self.domain_signals),
+            "confidenceWeight": self.confidence_weight,
+        }
+
+
+@dataclass(frozen=True)
 class PatternPromptDefaults:
     requirements: tuple[dict[str, object], ...]
     constraints: tuple[dict[str, str], ...]
@@ -99,6 +114,7 @@ class PromptPattern:
     default_constraints: tuple[PatternConstraintTemplate, ...]
     recommended_output_format: PatternOutputFormatTemplate
     validation_items: tuple[PatternValidationTemplate, ...]
+    matching_metadata: PatternMatchingMetadata
     supported_locales: tuple[str, ...]
     agent_profiles: tuple[str, ...]
 
@@ -157,6 +173,7 @@ class PromptPattern:
             "id": self.id,
             "category": self.category,
             "keywords": list(self.keywords),
+            "matchingMetadata": self.matching_metadata.to_dict(),
             "defaultLocale": self.default_locale,
             "supportedLocales": list(self.supported_locales),
             "agentProfiles": list(self.agent_profiles),
@@ -246,6 +263,7 @@ def _parse_pattern(raw_pattern: Mapping[str, object], path: str) -> PromptPatter
         "defaultConstraints",
         "recommendedOutputFormat",
         "validationItems",
+        "matchingMetadata",
         "renderingHints",
     }
     _require_required_fields(raw_pattern, required_fields, path)
@@ -266,6 +284,7 @@ def _parse_pattern(raw_pattern: Mapping[str, object], path: str) -> PromptPatter
     constraints = _parse_constraints(raw_pattern.get("defaultConstraints"), f"{path}.defaultConstraints")
     output_format = _parse_output_format(raw_pattern.get("recommendedOutputFormat"), f"{path}.recommendedOutputFormat")
     validation_items = _parse_validation_items(raw_pattern.get("validationItems"), f"{path}.validationItems")
+    matching_metadata = _parse_matching_metadata(raw_pattern.get("matchingMetadata"), f"{path}.matchingMetadata")
 
     refs = _collect_refs(requirements, constraints, output_format, validation_items)
     for locale in supported_locales:
@@ -283,6 +302,7 @@ def _parse_pattern(raw_pattern: Mapping[str, object], path: str) -> PromptPatter
         default_constraints=constraints,
         recommended_output_format=output_format,
         validation_items=validation_items,
+        matching_metadata=matching_metadata,
         supported_locales=supported_locales,
         agent_profiles=agent_profiles,
     )
@@ -397,6 +417,21 @@ def _parse_validation_items(value: object, path: str) -> tuple[PatternValidation
     return tuple(result)
 
 
+def _parse_matching_metadata(value: object, path: str) -> PatternMatchingMetadata:
+    raw_metadata = _require_mapping(value, path)
+    _require_required_fields(raw_metadata, {"intentHints", "domainSignals", "confidenceWeight"}, path)
+    confidence_weight = _require_int(raw_metadata.get("confidenceWeight"), f"{path}.confidenceWeight")
+    _require(1 <= confidence_weight <= 5, f"{path}.confidenceWeight: 1부터 5 사이여야 합니다.")
+    return PatternMatchingMetadata(
+        intent_hints=tuple(
+            _require_allowed(intent, SUPPORTED_INTENT_HINTS, f"{path}.intentHints[{index}]")
+            for index, intent in enumerate(_require_text_list(raw_metadata.get("intentHints"), f"{path}.intentHints"))
+        ),
+        domain_signals=_require_text_list(raw_metadata.get("domainSignals"), f"{path}.domainSignals"),
+        confidence_weight=confidence_weight,
+    )
+
+
 def _collect_refs(
     requirements: tuple[PatternRequirementTemplate, ...],
     constraints: tuple[PatternConstraintTemplate, ...],
@@ -442,6 +477,11 @@ def _require_text_list(value: object, path: str) -> tuple[str, ...]:
     _require(isinstance(value, Sequence) and not isinstance(value, (str, bytes)), f"{path}: array 타입이어야 합니다.")
     _require(len(value) > 0, f"{path}: 최소 1개 항목이 필요합니다.")
     return tuple(_require_text(item, f"{path}[{index}]") for index, item in enumerate(value))
+
+
+def _require_int(value: object, path: str) -> int:
+    _require(isinstance(value, int) and not isinstance(value, bool), f"{path}: integer 타입이어야 합니다.")
+    return value
 
 
 def _require_allowed(value: object, allowed_values: tuple[str, ...], path: str) -> str:

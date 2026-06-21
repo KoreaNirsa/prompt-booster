@@ -11,6 +11,7 @@ from .intent_analyzer import (
 from .pattern_library import (
     PatternLibrary,
     PatternLibraryValidationError,
+    PatternMatchingMetadata,
     PatternMatch,
     PatternPromptDefaults,
     PromptPattern,
@@ -42,6 +43,7 @@ __all__ = [
     "OptimizerResult",
     "PatternLibrary",
     "PatternLibraryValidationError",
+    "PatternMatchingMetadata",
     "PatternMatch",
     "PatternPromptDefaults",
     "PromptPattern",
