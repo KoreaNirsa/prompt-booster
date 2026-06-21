@@ -65,6 +65,35 @@
 | `analysis` | object | intent, category, matched signals, confidence입니다. |
 | `sourceQualityScore` | object | 원문 요청의 점수, 항목별 breakdown, diagnostics입니다. |
 
+### `prompt.executionPlan`
+
+최적화된 프롬프트를 사용자에게 최종 응답으로 보여줄지, 대상 에이전트의 내부 실행 입력으로 전달할지 결정합니다. 이 명령은 외부 에이전트를 직접 실행하지 않고 자동 실행을 시작하기 위한 구조화된 입력만 생성합니다.
+
+입력 필드:
+
+| 필드 | 필수 | 타입 | 설명 |
+| --- | --- | --- | --- |
+| `sourceText` | 예 | string | 실행 계획을 만들 사용자 원문 요청입니다. |
+| `target` | 아니오 | string | `neutral`, `codex`, `claude_code` 중 하나입니다. 생략 시 `codex`를 사용합니다. |
+| `executionMode` | 아니오 | string | `render_only`, `auto_execute` 중 하나입니다. 생략 시 `render_only`를 사용합니다. |
+| `clarificationAnswers` | 아니오 | object | 질문 `id` 또는 `topic`을 key로 하는 사용자 답변입니다. |
+
+출력 필드:
+
+| 필드 | 타입 | 설명 |
+| --- | --- | --- |
+| `executionPlan` | object | 실행 모드, 실행 가능 여부, 사용자 출력 프롬프트, 내부 실행 입력, 필수 질문, 차단 사유입니다. |
+
+`executionPlan`은 다음 상태를 사용합니다.
+
+| status | 의미 |
+| --- | --- |
+| `render_only` | 최적화된 프롬프트를 사용자에게 반환하는 모드입니다. `executionInput`은 없습니다. |
+| `blocked` | 자동 실행 전에 필수 질문 답변이나 입력 수정이 필요합니다. |
+| `ready` | 필수 답변이 충족되어 `executionInput`을 대상 에이전트로 전달할 수 있습니다. |
+
+`auto_execute` 모드에서 비즈니스 로직 또는 고영향 요구사항 답변이 없으면 `executionReady=false`, `executionInput=null`, `requiredQuestions`와 `blockedReasons`를 반환합니다.
+
 ### `prompt.explain`
 
 Analyzer와 Optimizer가 어떤 근거로 결과를 만들었는지 설명합니다.

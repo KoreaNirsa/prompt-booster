@@ -39,6 +39,21 @@ PowerShell에서는 따옴표 이스케이프가 환경에 따라 달라질 수 
 | `prompt.score` | `sourceText` | `analysis`, `sourceQualityScore` |
 | `prompt.explain` | `sourceText` | `analysis`, `matchedSignals`, `pipelineSteps`, `matchedPatterns`, `clarificationQuestions` |
 | `prompt.patterns` | 없음 | `patterns` |
+| `prompt.executionPlan` | `sourceText` | `executionPlan` |
+
+## 자동 실행 계획
+
+최적화된 프롬프트를 사용자에게 보여주지 않고 대상 에이전트 실행 입력으로 넘기려면 `prompt.executionPlan`을 사용합니다.
+
+```bash
+python plugins/prompt-booster/scripts/prompt_booster_command.py prompt.executionPlan --source-text "쇼핑몰 만들어줘" --target codex --execution-mode auto_execute
+```
+
+필수 비즈니스 범위 답변이 없으면 `executionPlan.status`는 `blocked`이며 `requiredQuestions`를 반환합니다. 필수 답변을 제공하면 `executionInput`이 생성됩니다.
+
+```bash
+python plugins/prompt-booster/scripts/prompt_booster_command.py prompt.executionPlan --source-text "쇼핑몰 만들어줘" --target codex --execution-mode auto_execute --clarification-answer "business_scope=주문 생성까지 포함하고 결제는 제외"
+```
 
 ## Pattern 조회
 
@@ -97,6 +112,7 @@ python -m json.tool plugins\prompt-booster\.codex-plugin\plugin.json > $null
 ## 관련 문서
 
 - [`codex-plugin-commands.md`](codex-plugin-commands.md)
+- [`agent-execution-flow.md`](agent-execution-flow.md)
 - [`agent-adapters.md`](agent-adapters.md)
 - [`prompt-pattern-library.md`](prompt-pattern-library.md)
 - [`prompt-quality-score.md`](prompt-quality-score.md)

@@ -26,3 +26,19 @@ Prompt-Booster는 analyzer, pattern matcher, Prompt IR 생성을 agent와 분리
 ## 오류 처리
 
 지원하지 않는 target은 `unsupported_target` 오류로 반환합니다. 오류 메시지는 요청 target과 현재 지원 target 목록을 포함해야 합니다.
+
+## 자동 실행 준비 계약
+
+자동 실행 흐름은 adapter가 외부 에이전트를 직접 호출하는 방식이 아니라, `prompt.executionPlan`이 만든 `executionInput`을 대상 에이전트 실행 계층에 전달하는 방식으로 정의합니다.
+
+| 필드 | 설명 |
+| --- | --- |
+| `target` | 실행 입력을 받을 agent target입니다. |
+| `prompt` | target별 renderer가 만든 내부 실행 프롬프트입니다. 필수 질문 답변이 있으면 `Clarification Answers` 섹션을 함께 포함합니다. |
+| `sourceText` | 사용자의 원문 요청입니다. |
+| `promptIrSummary` | intent, context, requirement count, output section count 요약입니다. |
+| `matchedPatterns` | 실행 입력 생성에 반영된 pattern match 요약입니다. |
+| `clarificationAnswers` | 자동 실행 전에 사용자가 답한 필수 질문입니다. |
+| `executionPolicy` | 비즈니스 로직 추측 금지와 필수 질문 충족 조건입니다. |
+
+`executionPolicy.businessLogicGuessing`은 항상 `forbidden`입니다. 필수 질문이 남아 있으면 `executionInput`을 만들지 않고 `blocked` 상태를 반환해야 합니다.

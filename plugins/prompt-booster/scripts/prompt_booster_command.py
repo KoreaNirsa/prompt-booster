@@ -13,7 +13,9 @@ if str(REPO_ROOT) not in sys.path:
 
 from prompt_booster import (  # noqa: E402
     Category,
+    EXECUTION_MODES,
     PatternLibrary,
+    PromptExecutionPlanner,
     PromptOptimizer,
     PromptQualityScorer,
     analyze_intent,
@@ -21,7 +23,7 @@ from prompt_booster import (  # noqa: E402
 from prompt_booster.optimizer import SUPPORTED_TARGETS  # noqa: E402
 
 
-COMMANDS = {"prompt.optimize", "prompt.score", "prompt.explain", "prompt.patterns"}
+COMMANDS = {"prompt.optimize", "prompt.score", "prompt.explain", "prompt.patterns", "prompt.executionPlan"}
 PATTERN_CATEGORIES = {category.value for category in Category}
 
 
@@ -39,6 +41,8 @@ def run_command(command: str, payload: object | None = None) -> dict[str, object
         return _run_score(command, payload)
     if command == "prompt.explain":
         return _run_explain(command, payload)
+    if command == "prompt.executionPlan":
+        return _run_execution_plan(command, payload)
     return _run_patterns(command, payload)
 
 
@@ -124,6 +128,43 @@ def _run_explain(command: str, payload: dict[str, object]) -> dict[str, object]:
             "clarificationQuestions": [question.to_dict() for question in result.clarification_questions],
         },
     )
+
+
+def _run_execution_plan(command: str, payload: dict[str, object]) -> dict[str, object]:
+    source_text_error = _source_text_error(command, payload)
+    if source_text_error:
+        return source_text_error
+
+    target = payload.get("target", "codex")
+    target_error = _target_error(command, target)
+    if target_error:
+        return target_error
+
+    execution_mode = payload.get("executionMode", "render_only")
+    if execution_mode not in EXECUTION_MODES:
+        return _failure(
+            command,
+            "invalid_options",
+            "executionMode는 지원하는 실행 모드여야 합니다.",
+            {"field": "executionMode", "allowedValues": list(EXECUTION_MODES)},
+        )
+
+    clarification_answers = payload.get("clarificationAnswers", {})
+    if not isinstance(clarification_answers, dict):
+        return _failure(
+            command,
+            "invalid_options",
+            "clarificationAnswers는 object여야 합니다.",
+            {"field": "clarificationAnswers"},
+        )
+
+    plan = PromptExecutionPlanner().plan(
+        str(payload["sourceText"]),
+        target=str(target),
+        mode=str(execution_mode),
+        clarification_answers=clarification_answers,
+    )
+    return _success(command, {"executionPlan": plan.to_dict()})
 
 
 def _run_patterns(command: str, payload: dict[str, object]) -> dict[str, object]:
@@ -251,6 +292,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--category", default=None, help="Pattern category for prompt.patterns.")
     parser.add_argument("--include-defaults", action="store_true", help="Include prompt defaults for prompt.patterns.")
     parser.add_argument("--locale", default=None, help="Pattern locale for prompt.patterns.")
+    parser.add_argument("--execution-mode", default=None, help="Execution mode for prompt.executionPlan.")
+    parser.add_argument("--clarification-answers-json", default=None, help="JSON object with clarification answers.")
+    parser.add_argument(
+        "--clarification-answer",
+        action="append",
+        default=None,
+        help="Clarification answer as key=value. Can be repeated.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -287,6 +336,22 @@ def _payload_from_args(args: argparse.Namespace) -> object:
         payload["includeDefaults"] = True
     if args.locale is not None:
         payload["locale"] = args.locale
+    if args.execution_mode is not None:
+        payload["executionMode"] = args.execution_mode
+    clarification_answers: dict[str, object] = {}
+    if args.clarification_answers_json is not None:
+        parsed_answers = json.loads(args.clarification_answers_json)
+        if isinstance(parsed_answers, dict):
+            clarification_answers.update(parsed_answers)
+        else:
+            payload["clarificationAnswers"] = parsed_answers
+    if args.clarification_answer:
+        for item in args.clarification_answer:
+            key, separator, value = item.partition("=")
+            if separator:
+                clarification_answers[key.strip()] = value.strip()
+    if clarification_answers:
+        payload["clarificationAnswers"] = clarification_answers
     return payload
 
 
