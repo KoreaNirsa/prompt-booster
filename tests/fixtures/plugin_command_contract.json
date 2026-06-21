@@ -15,7 +15,7 @@
       }
     }
   },
-  "supportedTargets": ["neutral", "codex"],
+  "supportedTargets": ["neutral", "codex", "claude_code"],
   "commands": [
     {
       "name": "prompt.optimize",
@@ -32,7 +32,7 @@
           {
             "name": "target",
             "type": "string",
-            "allowedValues": ["neutral", "codex"],
+            "allowedValues": ["neutral", "codex", "claude_code"],
             "default": "neutral",
             "description": "렌더링 대상입니다."
           },
@@ -95,7 +95,7 @@
           {
             "name": "target",
             "type": "string",
-            "allowedValues": ["neutral", "codex"],
+            "allowedValues": ["neutral", "codex", "claude_code"],
             "default": "neutral",
             "description": "렌더링 대상입니다."
           }

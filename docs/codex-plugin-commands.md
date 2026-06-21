@@ -33,7 +33,7 @@
 | 필드 | 필수 | 타입 | 설명 |
 | --- | --- | --- | --- |
 | `sourceText` | 예 | string | 최적화할 사용자 원문 요청입니다. |
-| `target` | 아니오 | string | `neutral` 또는 `codex`입니다. 생략 시 `neutral`을 사용합니다. |
+| `target` | 아니오 | string | `neutral`, `codex`, `claude_code` 중 하나입니다. 생략 시 `neutral`을 사용합니다. |
 | `includePromptIr` | 아니오 | boolean | 전체 Prompt IR을 응답에 포함할지 결정합니다. 기본값은 `false`입니다. |
 | `includeQualityScore` | 아니오 | boolean | quality score 상세 정보를 포함할지 결정합니다. 기본값은 `true`입니다. |
 
@@ -74,7 +74,7 @@ Analyzer와 Optimizer가 어떤 근거로 결과를 만들었는지 설명합니
 | 필드 | 필수 | 타입 | 설명 |
 | --- | --- | --- | --- |
 | `sourceText` | 예 | string | 설명할 사용자 원문 요청입니다. |
-| `target` | 아니오 | string | `neutral` 또는 `codex`입니다. 생략 시 `neutral`을 사용합니다. |
+| `target` | 아니오 | string | `neutral`, `codex`, `claude_code` 중 하나입니다. 생략 시 `neutral`을 사용합니다. |
 
 출력 필드:
 
@@ -110,6 +110,6 @@ Analyzer와 Optimizer가 어떤 근거로 결과를 만들었는지 설명합니
 | --- | --- | --- |
 | `empty_input` | `sourceText`가 없거나 공백뿐인 경우입니다. | true |
 | `invalid_options` | 입력 payload가 object가 아니거나 필드 타입, category, include 옵션이 계약과 다른 경우입니다. | true |
-| `unsupported_target` | `target`이 지원 값인 `neutral`, `codex`가 아닌 경우입니다. | true |
+| `unsupported_target` | `target`이 지원 값인 `neutral`, `codex`, `claude_code`가 아닌 경우입니다. | true |
 
 `prompt.patterns`는 `sourceText`를 받지 않으므로 `empty_input`을 반환하지 않습니다. 잘못된 category 또는 include 옵션은 `invalid_options`로 반환합니다.

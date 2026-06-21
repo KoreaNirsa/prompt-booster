@@ -374,6 +374,8 @@ Spring Security와 JWT를 사용한 인증 시스템을 구현하세요.
 * Gemini CLI
 * OpenHands
 
+Agent별 target 확장 기준은 [`docs/agent-adapters.md`](docs/agent-adapters.md)에 정리되어 있습니다.
+
 ---
 
 # 🤝 기여하기

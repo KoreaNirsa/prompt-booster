@@ -25,6 +25,8 @@ JSON payload를 직접 전달할 수도 있습니다.
 python plugins/prompt-booster/scripts/prompt_booster_command.py prompt.optimize --input-json "{\"sourceText\":\"JWT 로그인 만들어줘\",\"target\":\"codex\"}"
 ```
 
+지원 target은 `neutral`, `codex`, `claude_code`입니다.
+
 ## Local Validation
 
 ```bash
