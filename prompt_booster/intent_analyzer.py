@@ -316,7 +316,7 @@ class IntentAnalyzer:
 
         for rule in rules:
             for keyword in rule.keywords:
-                if keyword in normalized:
+                if self._keyword_matches(normalized, keyword):
                     scores[rule.value] = scores.get(rule.value, 0) + rule.weight
                     signals.append(
                         MatchedSignal(
@@ -359,6 +359,14 @@ class IntentAnalyzer:
 
     def _normalize(self, text: str) -> str:
         return re.sub(r"\s+", " ", text.casefold()).strip()
+
+    def _keyword_matches(self, normalized: str, keyword: str) -> bool:
+        if self._is_ascii_keyword(keyword):
+            return re.search(rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])", normalized) is not None
+        return keyword in normalized
+
+    def _is_ascii_keyword(self, keyword: str) -> bool:
+        return keyword.isascii()
 
 
 def analyze_intent(text: str) -> AnalyzerResult:

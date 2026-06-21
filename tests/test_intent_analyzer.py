@@ -73,6 +73,19 @@ class IntentAnalyzerTest(unittest.TestCase):
         self.assertEqual("no_supported_signal", result.fallback.reason)
         self.assertEqual((), result.matched_signals)
 
+    def test_short_english_keywords_do_not_match_inside_words(self):
+        concise_result = analyze_intent("Make this concise")
+        email_result = analyze_intent("Fix email parsing bug")
+
+        self.assertNotEqual(IntentType.DEVOPS, concise_result.intent)
+        self.assertNotEqual(Category.DEVOPS, concise_result.category)
+        self.assertTrue(concise_result.fallback.used)
+
+        self.assertEqual(IntentType.DEBUGGING, email_result.intent)
+        self.assertNotEqual(Category.AI, email_result.category)
+        self.assertIsNone(email_result.category)
+        self.assertTrue(email_result.fallback.used)
+
 
 if __name__ == "__main__":
     unittest.main()
