@@ -8,6 +8,7 @@
       "sourceText": "JWT 로그인 만들어줘",
       "expectedIntent": "code_generation",
       "expectedCategory": "backend",
+      "minimumOptimizedQualityScore": 90,
       "minimumSections": [
         "Role",
         "Instruction",
@@ -24,6 +25,7 @@
       "sourceText": "게시판 설계해줘",
       "expectedIntent": "system_design",
       "expectedCategory": "architecture",
+      "minimumOptimizedQualityScore": 90,
       "minimumSections": [
         "Role",
         "Instruction",
@@ -40,6 +42,7 @@
       "sourceText": "RAG 챗봇 구현해줘",
       "expectedIntent": "code_generation",
       "expectedCategory": "ai",
+      "minimumOptimizedQualityScore": 90,
       "minimumSections": [
         "Role",
         "Instruction",
@@ -56,6 +59,7 @@
       "sourceText": "리팩토링 해줘",
       "expectedIntent": "refactoring",
       "expectedCategory": "architecture",
+      "minimumOptimizedQualityScore": 90,
       "minimumSections": [
         "Role",
         "Instruction",
@@ -72,6 +76,7 @@
       "sourceText": "쇼핑몰 만들어줘",
       "expectedIntent": "code_generation",
       "expectedCategory": "backend",
+      "minimumOptimizedQualityScore": 90,
       "minimumSections": [
         "Role",
         "Instruction",

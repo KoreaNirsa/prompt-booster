@@ -325,6 +325,8 @@ Prompt-Booster는 프롬프트를 길게 늘리는 방식으로 품질을 높이
 
 자세한 기준은 [`docs/token-optimization.md`](docs/token-optimization.md)에 정리되어 있습니다.
 
+테스트 계층과 로컬 검증 명령은 [`docs/test-strategy.md`](docs/test-strategy.md)에 정리되어 있습니다.
+
 ---
 
 # 💡 예시
