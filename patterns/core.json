@@ -1861,6 +1861,529 @@
           "claude"
         ]
       }
+    },
+    {
+      "id": "devops.docker",
+      "category": "devops",
+      "keywords": [
+        "docker",
+        "dockerfile",
+        "container",
+        "compose",
+        "image build",
+        "컨테이너",
+        "도커"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.build": "Docker image build, runtime, configuration, environment variable 사용 방식을 정의합니다.",
+          "acc.build": "build context, base image, runtime command, 환경별 설정 주입 경로가 구분됩니다.",
+          "req.secret": "secret handling은 image layer, 로그, 예시 명령에 secret을 남기지 않도록 정의합니다.",
+          "acc.secret": "secret은 environment variable 또는 secret store로 주입되고 Dockerfile에 하드코딩되지 않습니다.",
+          "req.operability": "health check, observability, failure-mode expectations, rollback 가능한 image tag 전략을 포함합니다.",
+          "acc.operability": "container 상태 확인, 로그 확인, 실패 시 이전 tag로 rollback하는 절차가 설명됩니다.",
+          "con.production": "production 기본값은 최소 권한과 명시적 opt-in 설정을 사용합니다.",
+          "con.reproducible": "재현 가능한 build command와 실패 진단 기준을 함께 제공합니다.",
+          "section.build.title": "Build Contract",
+          "section.build.description": "Dockerfile, build command, runtime command, configuration 경계를 설명합니다.",
+          "section.secret.title": "Secret Handling",
+          "section.secret.description": "environment variable, secret store, 로그 마스킹 기준을 정리합니다.",
+          "section.operations.title": "Operational Checks",
+          "section.operations.description": "health check, observability, failure-mode expectations, rollback 절차를 포함합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "재현 가능한 명령, image 검증, secret 노출 방지 검증 기준을 포함합니다.",
+          "val.secret": "secret handling이 image layer와 로그 노출을 방지하는지 확인합니다.",
+          "val.rollback": "rollback과 health check 절차가 누락되지 않았는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "integration",
+          "priority": "must",
+          "descriptionRef": "req.build",
+          "acceptanceCriteriaRefs": [
+            "acc.build"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.secret",
+          "acceptanceCriteriaRefs": [
+            "acc.secret"
+          ]
+        },
+        {
+          "category": "nonFunctional",
+          "priority": "must",
+          "descriptionRef": "req.operability",
+          "acceptanceCriteriaRefs": [
+            "acc.operability"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "deployment",
+          "descriptionRef": "con.production"
+        },
+        {
+          "scope": "testing",
+          "descriptionRef": "con.reproducible"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.build.title",
+            "descriptionRef": "section.build.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.secret.title",
+            "descriptionRef": "section.secret.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.operations.title",
+            "descriptionRef": "section.operations.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.secret"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.rollback"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "devops",
+          "code_generation"
+        ],
+        "domainSignals": [
+          "docker",
+          "container",
+          "image build",
+          "secret handling"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "devops.kubernetes",
+      "category": "devops",
+      "keywords": [
+        "kubernetes",
+        "k8s",
+        "deployment",
+        "service",
+        "ingress",
+        "helm",
+        "쿠버네티스",
+        "배포"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.workload": "Kubernetes workload, service, ingress, configuration, environment variable, environment assumption을 정의합니다.",
+          "acc.workload": "namespace, deployment, service, ingress, config map, environment variable 또는 secret 사용 기준이 구분됩니다.",
+          "req.secret": "secret handling은 manifest와 로그에 secret 값을 직접 노출하지 않도록 설계합니다.",
+          "acc.secret": "secret은 Kubernetes Secret 또는 외부 secret manager로 참조됩니다.",
+          "req.operations": "rollback, health check, readiness/liveness probe, observability, failure-mode expectations를 포함합니다.",
+          "acc.operations": "배포 실패, probe 실패, rollout 중단, rollback 절차가 설명됩니다.",
+          "con.safety": "production 변경은 위험한 동작을 명시적 opt-in으로 제한합니다.",
+          "con.resources": "resource request/limit과 autoscaling 가정은 환경별로 명시합니다.",
+          "section.manifest.title": "Manifest Design",
+          "section.manifest.description": "workload, service, ingress, configuration, secret 참조를 설명합니다.",
+          "section.operations.title": "Deployment Operations",
+          "section.operations.description": "rollback, health check, observability, failure-mode expectations를 정리합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "dry-run, rollout status, probe, secret 노출 방지 검증 기준을 포함합니다.",
+          "section.environment.title": "Environment Assumptions",
+          "section.environment.description": "namespace, resource, region, cluster 권한 가정을 설명합니다.",
+          "val.secret": "secret 값이 manifest와 로그에 노출되지 않는지 확인합니다.",
+          "val.rollback": "rollback, health check, observability가 배포 절차에 포함되는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "integration",
+          "priority": "must",
+          "descriptionRef": "req.workload",
+          "acceptanceCriteriaRefs": [
+            "acc.workload"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.secret",
+          "acceptanceCriteriaRefs": [
+            "acc.secret"
+          ]
+        },
+        {
+          "category": "nonFunctional",
+          "priority": "must",
+          "descriptionRef": "req.operations",
+          "acceptanceCriteriaRefs": [
+            "acc.operations"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "deployment",
+          "descriptionRef": "con.safety"
+        },
+        {
+          "scope": "performance",
+          "descriptionRef": "con.resources"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.manifest.title",
+            "descriptionRef": "section.manifest.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.operations.title",
+            "descriptionRef": "section.operations.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.environment.title",
+            "descriptionRef": "section.environment.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.secret"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.rollback"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "devops",
+          "system_design"
+        ],
+        "domainSignals": [
+          "kubernetes",
+          "deployment",
+          "rollback",
+          "health check"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "devops.github-actions",
+      "category": "devops",
+      "keywords": [
+        "github actions",
+        "workflow",
+        "ci",
+        "cd",
+        "pipeline",
+        "action",
+        "깃허브 액션",
+        "CI"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.workflow": "GitHub Actions workflow trigger, job, step, reusable command를 정의합니다.",
+          "acc.workflow": "trigger, runner, dependency cache, artifact, permissions가 구분됩니다.",
+          "req.secret": "secret handling은 GitHub Secrets와 environment variable을 사용하고 로그에 secret을 노출하지 않습니다.",
+          "acc.secret": "토큰, cloud credential, registry credential이 workflow 파일에 직접 기록되지 않습니다.",
+          "req.diagnosis": "재현 가능한 명령과 실패 진단 기준을 각 job 또는 step에 포함합니다.",
+          "acc.diagnosis": "로컬 재현 명령, 실패 로그 위치, 다음 확인 단계가 설명됩니다.",
+          "con.permissions": "workflow permissions는 최소 권한으로 선언하고 위험한 배포는 명시적 opt-in으로 제한합니다.",
+          "con.deploy": "배포 job은 rollback, health check, observability 조건을 통과한 뒤 진행합니다.",
+          "section.workflow.title": "Workflow Contract",
+          "section.workflow.description": "trigger, job, step, permission, environment variable 경계를 설명합니다.",
+          "section.commands.title": "Reproducible Commands",
+          "section.commands.description": "로컬 재현 명령, CI 실행 명령, 실패 진단 기준을 정리합니다.",
+          "section.secret.title": "Secret Handling",
+          "section.secret.description": "GitHub Secrets, environment variable, 로그 마스킹 기준을 설명합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "workflow syntax, 실패 진단, 권한, secret 노출 방지 검증 기준을 포함합니다.",
+          "val.commands": "재현 가능한 명령과 실패 진단 기준이 각 job에 포함되는지 확인합니다.",
+          "val.secret": "secret과 credential이 workflow 파일 또는 로그에 노출되지 않는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "integration",
+          "priority": "must",
+          "descriptionRef": "req.workflow",
+          "acceptanceCriteriaRefs": [
+            "acc.workflow"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.secret",
+          "acceptanceCriteriaRefs": [
+            "acc.secret"
+          ]
+        },
+        {
+          "category": "testing",
+          "priority": "must",
+          "descriptionRef": "req.diagnosis",
+          "acceptanceCriteriaRefs": [
+            "acc.diagnosis"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "security",
+          "descriptionRef": "con.permissions"
+        },
+        {
+          "scope": "deployment",
+          "descriptionRef": "con.deploy"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.workflow.title",
+            "descriptionRef": "section.workflow.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.commands.title",
+            "descriptionRef": "section.commands.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.secret.title",
+            "descriptionRef": "section.secret.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.commands"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.secret"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "devops",
+          "test_generation"
+        ],
+        "domainSignals": [
+          "github actions",
+          "workflow",
+          "ci",
+          "reproducible command"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "devops.aws-deployment",
+      "category": "devops",
+      "keywords": [
+        "aws deployment",
+        "aws",
+        "ecs",
+        "ec2",
+        "lambda",
+        "cloudformation",
+        "배포",
+        "AWS"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.target": "AWS deployment 대상 서비스, region, IAM 권한, environment assumption을 정의합니다.",
+          "acc.target": "배포 대상, 네트워크, IAM role, 환경별 configuration이 구분됩니다.",
+          "req.secret": "secret handling은 AWS Secrets Manager, Parameter Store, environment variable 참조를 사용합니다.",
+          "acc.secret": "access key, secret key, token은 코드, 로그, 예시 명령에 직접 노출되지 않습니다.",
+          "req.operations": "rollback, health check, observability, failure-mode expectations를 포함합니다.",
+          "acc.operations": "배포 실패, 헬스 체크 실패, 알람 발생 시 rollback 또는 중단 절차가 설명됩니다.",
+          "con.cost": "production 기본값은 비용과 권한을 보수적으로 제한하고 위험한 동작은 opt-in으로 둡니다.",
+          "con.audit": "변경 이력, 배포자, 환경, 실패 원인을 추적할 수 있어야 합니다.",
+          "section.target.title": "Deployment Target",
+          "section.target.description": "AWS service, region, IAM, network, configuration 가정을 설명합니다.",
+          "section.secret.title": "Secret Handling",
+          "section.secret.description": "Secrets Manager, Parameter Store, environment variable 참조 기준을 정리합니다.",
+          "section.operations.title": "Operational Checks",
+          "section.operations.description": "rollback, health check, observability, failure-mode expectations를 포함합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "배포 전 검증, 배포 후 검증, secret 노출 방지, rollback 검증 기준을 포함합니다.",
+          "val.secret": "AWS credential과 secret이 코드, 로그, 명령 예시에 노출되지 않는지 확인합니다.",
+          "val.operations": "rollback, health check, observability, failure-mode expectations가 정의되는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "integration",
+          "priority": "must",
+          "descriptionRef": "req.target",
+          "acceptanceCriteriaRefs": [
+            "acc.target"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.secret",
+          "acceptanceCriteriaRefs": [
+            "acc.secret"
+          ]
+        },
+        {
+          "category": "nonFunctional",
+          "priority": "must",
+          "descriptionRef": "req.operations",
+          "acceptanceCriteriaRefs": [
+            "acc.operations"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "deployment",
+          "descriptionRef": "con.cost"
+        },
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.audit"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.target.title",
+            "descriptionRef": "section.target.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.secret.title",
+            "descriptionRef": "section.secret.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.operations.title",
+            "descriptionRef": "section.operations.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.secret"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.operations"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "devops",
+          "system_design"
+        ],
+        "domainSignals": [
+          "aws",
+          "deployment",
+          "rollback",
+          "secret handling"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
     }
   ]
 }

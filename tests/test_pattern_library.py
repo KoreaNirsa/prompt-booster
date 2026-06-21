@@ -36,6 +36,12 @@ EXPECTED_AI_PATTERN_IDS = {
     "ai.embedding",
     "ai.vector-database",
 }
+EXPECTED_DEVOPS_PATTERN_IDS = {
+    "devops.docker",
+    "devops.kubernetes",
+    "devops.github-actions",
+    "devops.aws-deployment",
+}
 
 
 def load_default_payload():
@@ -165,6 +171,47 @@ class PatternLibraryTest(unittest.TestCase):
         for term in ("indexing", "metadata", "similarity search", "update/delete"):
             self.assertIn(term, vector_defaults)
 
+    def test_devops_pattern_templates_exist_with_matching_metadata(self):
+        library = PatternLibrary.load_default()
+        pattern_ids = {pattern.id for pattern in library.patterns}
+
+        self.assertTrue(EXPECTED_DEVOPS_PATTERN_IDS <= pattern_ids)
+        for pattern_id in EXPECTED_DEVOPS_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                pattern = library.get(pattern_id)
+
+                self.assertEqual("devops", pattern.category)
+                self.assertTrue(pattern.keywords)
+                self.assertTrue(pattern.matching_metadata.intent_hints)
+                self.assertTrue(pattern.matching_metadata.domain_signals)
+                self.assertGreaterEqual(pattern.matching_metadata.confidence_weight, 1)
+                self.assertLessEqual(pattern.matching_metadata.confidence_weight, 5)
+
+    def test_devops_patterns_include_secret_and_operational_constraints(self):
+        library = PatternLibrary.load_default()
+
+        for pattern_id in EXPECTED_DEVOPS_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                defaults = library.get(pattern_id).to_prompt_defaults().to_dict()
+                serialized = json.dumps(defaults, ensure_ascii=False).casefold()
+
+                self.assertIn("secret handling", serialized)
+                self.assertIn("environment variable", serialized)
+                self.assertIn("observability", serialized)
+        for pattern_id in ("devops.docker", "devops.kubernetes", "devops.aws-deployment"):
+            with self.subTest(deployment_pattern=pattern_id):
+                serialized = json.dumps(
+                    library.get(pattern_id).to_prompt_defaults().to_dict(),
+                    ensure_ascii=False,
+                ).casefold()
+
+                self.assertIn("rollback", serialized)
+                self.assertIn("health check", serialized)
+                self.assertIn("failure-mode expectations", serialized)
+        ci_defaults = json.dumps(library.get("devops.github-actions").to_prompt_defaults().to_dict(), ensure_ascii=False)
+        self.assertIn("재현 가능한 명령", ci_defaults)
+        self.assertIn("실패 진단", ci_defaults)
+
     def test_default_pattern_matches_analyzer_result(self):
         text = "Implement JWT login API"
         library = PatternLibrary.load_default()
@@ -227,6 +274,18 @@ class PatternLibraryTest(unittest.TestCase):
         self.assertIn("evaluation criteria", serialized)
         self.assertIn("citation", serialized)
         self.assertIn("fallback behavior", serialized)
+
+    def test_devops_prompt_is_augmented_with_operational_constraints(self):
+        result = optimize_prompt("GitHub Actions CI 만들어줘")
+        ci_match = next(match for match in result.pattern_matches if match.pattern.id == "devops.github-actions")
+        defaults = ci_match.pattern.to_prompt_defaults().to_dict()
+        serialized = json.dumps(defaults, ensure_ascii=False)
+
+        self.assertTrue(result.ok)
+        self.assertIn("secret handling", serialized.casefold())
+        self.assertIn("environment variable", serialized.casefold())
+        self.assertIn("재현 가능한 명령", serialized)
+        self.assertIn("실패 진단", serialized)
 
     def test_pattern_definition_fails_fast_without_keywords(self):
         payload = load_default_payload()

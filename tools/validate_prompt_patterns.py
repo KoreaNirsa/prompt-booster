@@ -40,6 +40,12 @@ EXPECTED_AI_PATTERNS = {
     "ai.embedding",
     "ai.vector-database",
 }
+EXPECTED_DEVOPS_PATTERNS = {
+    "devops.docker",
+    "devops.kubernetes",
+    "devops.github-actions",
+    "devops.aws-deployment",
+}
 
 
 def load_schema_validator():
@@ -69,6 +75,7 @@ def main():
     require(EXPECTED_BACKEND_PATTERNS <= pattern_ids, "필수 백엔드 패턴이 누락되었습니다.")
     require(EXPECTED_FRONTEND_PATTERNS <= pattern_ids, "필수 프론트엔드 패턴이 누락되었습니다.")
     require(EXPECTED_AI_PATTERNS <= pattern_ids, "필수 AI 패턴이 누락되었습니다.")
+    require(EXPECTED_DEVOPS_PATTERNS <= pattern_ids, "필수 DevOps 패턴이 누락되었습니다.")
     print("Prompt Pattern Library 정의가 유효합니다.")
 
 
