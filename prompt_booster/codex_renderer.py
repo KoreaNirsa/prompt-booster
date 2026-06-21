@@ -6,6 +6,8 @@ from .prompt_renderer import PromptRenderer
 
 
 class CodexPromptRenderer(PromptRenderer):
+    heading = "# Codex Task Prompt"
+
     def render(self, prompt_ir: Mapping[str, object]) -> str:
         intent = self._mapping(prompt_ir.get("intent"))
         context = self._mapping(prompt_ir.get("context"))
@@ -26,7 +28,7 @@ class CodexPromptRenderer(PromptRenderer):
             ("Operational Risk Notes", self._operational_risk_lines(intent, context)),
         ]
 
-        lines = ["# Codex Task Prompt"]
+        lines = [self.heading]
         for title, section_lines in sections:
             if not section_lines:
                 continue

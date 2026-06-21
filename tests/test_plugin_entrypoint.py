@@ -52,6 +52,18 @@ class PluginEntrypointTest(unittest.TestCase):
         self.assertIsNotNone(response["data"]["qualityScore"])
         self.assertIsNone(response["data"]["promptIr"])
 
+    def test_optimize_command_supports_claude_code_target(self):
+        entrypoint = load_entrypoint()
+
+        response = entrypoint.run_command(
+            "prompt.optimize",
+            {"sourceText": "JWT 로그인 만들어줘", "target": "claude_code"},
+        )
+
+        self.assertTrue(response["ok"])
+        self.assertTrue(response["data"]["renderedPrompt"].startswith("# Claude Code Task Prompt"))
+        self.assertIn("backend.jwt-auth", json.dumps(response["data"]["matchedPatterns"], ensure_ascii=False))
+
     def test_cli_runs_sample_optimize_command(self):
         payload = json.dumps({"sourceText": "JWT 로그인 만들어줘", "target": "codex"}, ensure_ascii=False)
 

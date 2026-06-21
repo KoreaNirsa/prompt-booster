@@ -1,4 +1,12 @@
 from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
+from .agent_adapter import (
+    FUTURE_AGENT_TARGETS,
+    AgentAdapterRegistry,
+    PromptAgentAdapter,
+    RendererAgentAdapter,
+    default_agent_adapter_registry,
+)
+from .claude_code_renderer import ClaudeCodePromptRenderer
 from .codex_renderer import CodexPromptRenderer
 from .intent_analyzer import (
     AnalyzerResult,
@@ -34,10 +42,13 @@ from .rif_engine import RifEngine, RifFormatSection, RifInstruction, RifOutput, 
 
 __all__ = [
     "AdaptiveGrillMe",
+    "AgentAdapterRegistry",
     "AnalyzerResult",
     "Category",
     "ClarificationQuestion",
+    "ClaudeCodePromptRenderer",
     "CodexPromptRenderer",
+    "FUTURE_AGENT_TARGETS",
     "FallbackInfo",
     "IntentAnalyzer",
     "IntentType",
@@ -48,11 +59,13 @@ __all__ = [
     "PatternMatchingMetadata",
     "PatternMatch",
     "PatternPromptDefaults",
+    "PromptAgentAdapter",
     "PromptPattern",
     "PromptQualityReport",
     "PromptQualityScorer",
     "QualityCriterion",
     "QualityDiagnostic",
+    "RendererAgentAdapter",
     "PromptOptimizer",
     "PromptRenderer",
     "RifEngine",
@@ -62,5 +75,6 @@ __all__ = [
     "RifRole",
     "ValidationIssue",
     "analyze_intent",
+    "default_agent_adapter_registry",
     "optimize_prompt",
 ]

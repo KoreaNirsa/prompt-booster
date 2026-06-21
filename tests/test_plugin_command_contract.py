@@ -70,7 +70,7 @@ class PluginCommandContractTest(unittest.TestCase):
         self.assertTrue(errors["empty_input"]["recoverable"])
         self.assertTrue(errors["invalid_options"]["recoverable"])
         self.assertTrue(errors["unsupported_target"]["recoverable"])
-        self.assertEqual(["neutral", "codex"], contract["supportedTargets"])
+        self.assertEqual(["neutral", "codex", "claude_code"], contract["supportedTargets"])
 
     def test_patterns_command_does_not_require_source_text(self):
         command = self.command_by_name("prompt.patterns")

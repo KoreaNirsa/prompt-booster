@@ -6,7 +6,7 @@ import hashlib
 from os import PathLike
 
 from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
-from .codex_renderer import CodexPromptRenderer
+from .agent_adapter import AgentAdapterRegistry, default_agent_adapter_registry
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
 from .pattern_library import PatternLibrary, PatternMatch
 from .prompt_renderer import PromptRenderer
@@ -14,7 +14,7 @@ from .quality_score import PromptQualityReport, PromptQualityScorer
 from .rif_engine import RifEngine, RifOutput
 
 
-SUPPORTED_TARGETS = frozenset({"neutral", "codex"})
+SUPPORTED_TARGETS = frozenset(default_agent_adapter_registry().targets)
 
 
 @dataclass(frozen=True)
@@ -78,11 +78,12 @@ class PromptOptimizer:
         adaptive_grill: AdaptiveGrillMe | None = None,
         quality_scorer: PromptQualityScorer | None = None,
         pattern_library: PatternLibrary | Mapping[str, object] | str | PathLike[str] | None = None,
+        agent_adapters: AgentAdapterRegistry | None = None,
     ) -> None:
         self._analyzer = analyzer or IntentAnalyzer()
         self._rif_engine = rif_engine or RifEngine()
-        self._renderer = renderer or PromptRenderer()
-        self._codex_renderer = CodexPromptRenderer()
+        self._agent_adapters = agent_adapters or default_agent_adapter_registry(renderer or PromptRenderer())
+        self._supported_targets = frozenset(self._agent_adapters.targets)
         self._adaptive_grill = adaptive_grill or AdaptiveGrillMe()
         self._quality_scorer = quality_scorer or PromptQualityScorer()
         self._pattern_library = self._resolve_pattern_library(pattern_library)
@@ -172,9 +173,7 @@ class PromptOptimizer:
         )
 
     def _render_prompt(self, prompt_ir: dict[str, object], target: str) -> str:
-        if target == "codex":
-            return self._codex_renderer.render(prompt_ir)
-        return self._renderer.render(prompt_ir)
+        return self._agent_adapters.render(target, prompt_ir)
 
     def _validate_input(self, source_text: str, target: str) -> ValidationIssue | None:
         normalized = " ".join(source_text.split())
@@ -182,8 +181,12 @@ class PromptOptimizer:
             return ValidationIssue(code="empty_input", message="원본 사용자 프롬프트가 비어 있습니다.")
         if len(normalized) < 4:
             return ValidationIssue(code="too_short_input", message="원본 사용자 프롬프트가 너무 짧습니다.")
-        if target not in SUPPORTED_TARGETS:
-            return ValidationIssue(code="unsupported_target", message=f"지원하지 않는 target입니다: {target}")
+        if target not in self._supported_targets:
+            allowed_targets = ", ".join(sorted(self._supported_targets))
+            return ValidationIssue(
+                code="unsupported_target",
+                message=f"지원하지 않는 target입니다: {target}. 지원 값: {allowed_targets}",
+            )
         return None
 
     def _inject_constraints(self, analysis: AnalyzerResult) -> ConstraintOutput:
