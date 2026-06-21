@@ -8,6 +8,13 @@ from .intent_analyzer import (
     MatchedSignal,
     analyze_intent,
 )
+from .pattern_library import (
+    PatternLibrary,
+    PatternLibraryValidationError,
+    PatternMatch,
+    PatternPromptDefaults,
+    PromptPattern,
+)
 from .optimizer import (
     OptimizerResult,
     PromptOptimizer,
@@ -33,6 +40,11 @@ __all__ = [
     "IntentType",
     "MatchedSignal",
     "OptimizerResult",
+    "PatternLibrary",
+    "PatternLibraryValidationError",
+    "PatternMatch",
+    "PatternPromptDefaults",
+    "PromptPattern",
     "PromptQualityReport",
     "PromptQualityScorer",
     "QualityCriterion",

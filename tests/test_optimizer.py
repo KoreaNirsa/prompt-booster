@@ -25,6 +25,7 @@ class PromptOptimizerTest(unittest.TestCase):
                 "analyze_intent",
                 "generate_clarification_questions",
                 "generate_rif",
+                "match_patterns",
                 "inject_constraints",
                 "render_prompt",
             ),
@@ -36,6 +37,7 @@ class PromptOptimizerTest(unittest.TestCase):
         self.assertEqual("implement", result.prompt_ir["intent"]["action"])
         self.assertEqual("backend", result.prompt_ir["intent"]["primaryDomain"])
         self.assertIn("clarificationQuestions", result.to_dict())
+        self.assertEqual("backend.jwt-auth", result.pattern_matches[0].pattern.id)
         self.assertIn("target=codex", result.prompt_ir["context"]["assumptions"])
         self.assertIn("## Role", result.rendered_prompt)
         self.assertIn("## Validation", result.rendered_prompt)
@@ -80,6 +82,7 @@ class PromptOptimizerTest(unittest.TestCase):
         self.assertEqual("ai", payload["analysis"]["category"])
         self.assertIn("promptIr", payload)
         self.assertIn("renderedPrompt", payload)
+        self.assertIn("patternMatches", payload)
         self.assertIn("sourceQualityScore", payload)
         self.assertIn("optimizedQualityScore", payload)
         self.assertEqual([], payload["errors"])

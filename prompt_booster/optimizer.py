@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 import hashlib
+from os import PathLike
 
 from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
+from .pattern_library import PatternLibrary, PatternMatch
 from .prompt_renderer import PromptRenderer
 from .quality_score import PromptQualityReport, PromptQualityScorer
 from .rif_engine import RifEngine, RifOutput
@@ -37,6 +40,7 @@ class OptimizerResult:
     target: str
     analysis: AnalyzerResult | None
     clarification_questions: tuple[ClarificationQuestion, ...]
+    pattern_matches: tuple[PatternMatch, ...]
     source_quality_score: PromptQualityReport | None
     optimized_quality_score: PromptQualityReport | None
     prompt_ir: dict[str, object] | None
@@ -54,6 +58,7 @@ class OptimizerResult:
             "target": self.target,
             "analysis": self.analysis.to_dict() if self.analysis else None,
             "clarificationQuestions": [question.to_dict() for question in self.clarification_questions],
+            "patternMatches": [match.to_dict() for match in self.pattern_matches],
             "sourceQualityScore": self.source_quality_score.to_dict() if self.source_quality_score else None,
             "optimizedQualityScore": self.optimized_quality_score.to_dict() if self.optimized_quality_score else None,
             "promptIr": self.prompt_ir,
@@ -71,12 +76,14 @@ class PromptOptimizer:
         renderer: PromptRenderer | None = None,
         adaptive_grill: AdaptiveGrillMe | None = None,
         quality_scorer: PromptQualityScorer | None = None,
+        pattern_library: PatternLibrary | Mapping[str, object] | str | PathLike[str] | None = None,
     ) -> None:
         self._analyzer = analyzer or IntentAnalyzer()
         self._rif_engine = rif_engine or RifEngine()
         self._renderer = renderer or PromptRenderer()
         self._adaptive_grill = adaptive_grill or AdaptiveGrillMe()
         self._quality_scorer = quality_scorer or PromptQualityScorer()
+        self._pattern_library = self._resolve_pattern_library(pattern_library)
 
     def optimize(self, source_text: str, target: str | None = None) -> OptimizerResult:
         selected_target = target or "neutral"
@@ -87,6 +94,7 @@ class PromptOptimizer:
                 target=selected_target,
                 analysis=None,
                 clarification_questions=(),
+                pattern_matches=(),
                 source_quality_score=None,
                 optimized_quality_score=None,
                 prompt_ir=None,
@@ -104,6 +112,7 @@ class PromptOptimizer:
                 target=selected_target,
                 analysis=analysis,
                 clarification_questions=(),
+                pattern_matches=(),
                 source_quality_score=source_quality_score,
                 optimized_quality_score=None,
                 prompt_ir=None,
@@ -122,6 +131,9 @@ class PromptOptimizer:
 
         pipeline_steps.append("generate_rif")
         rif = self._rif_engine.generate(source_text, analysis)
+
+        pipeline_steps.append("match_patterns")
+        pattern_matches = self._pattern_library.match(source_text, analysis)
 
         pipeline_steps.append("inject_constraints")
         constraint_output = self._inject_constraints(analysis)
@@ -144,6 +156,7 @@ class PromptOptimizer:
             target=selected_target,
             analysis=analysis,
             clarification_questions=clarification_questions,
+            pattern_matches=pattern_matches,
             source_quality_score=source_quality_score,
             optimized_quality_score=optimized_quality_score,
             prompt_ir=prompt_ir,
@@ -340,6 +353,20 @@ class PromptOptimizer:
             Category.ARCHITECTURE: ["Boundary", "Dependency Rule", "Tradeoff"],
         }
         return stacks[category or Category.BACKEND]
+
+    def _resolve_pattern_library(
+        self,
+        pattern_library: PatternLibrary | Mapping[str, object] | str | PathLike[str] | None,
+    ) -> PatternLibrary:
+        if pattern_library is None:
+            return PatternLibrary.load_default()
+        if isinstance(pattern_library, PatternLibrary):
+            return pattern_library
+        if isinstance(pattern_library, Mapping):
+            return PatternLibrary.from_dict(pattern_library)
+        if isinstance(pattern_library, (str, PathLike)):
+            return PatternLibrary.from_file(pattern_library)
+        raise TypeError("pattern_library는 PatternLibrary, dict, path 중 하나여야 합니다.")
 
     def _stable_id(self, source_text: str, target: str) -> str:
         digest = hashlib.sha1(f"{target}\n{source_text}".encode("utf-8")).hexdigest()[:12]
