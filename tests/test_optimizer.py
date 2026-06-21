@@ -23,6 +23,7 @@ class PromptOptimizerTest(unittest.TestCase):
             (
                 "validate_input",
                 "analyze_intent",
+                "generate_clarification_questions",
                 "generate_rif",
                 "inject_constraints",
                 "render_prompt",
@@ -34,6 +35,7 @@ class PromptOptimizerTest(unittest.TestCase):
         self.assertEqual("1.0.0", result.prompt_ir["schemaVersion"])
         self.assertEqual("implement", result.prompt_ir["intent"]["action"])
         self.assertEqual("backend", result.prompt_ir["intent"]["primaryDomain"])
+        self.assertIn("clarificationQuestions", result.to_dict())
         self.assertIn("target=codex", result.prompt_ir["context"]["assumptions"])
         self.assertIn("## Role", result.rendered_prompt)
         self.assertIn("## Validation", result.rendered_prompt)
