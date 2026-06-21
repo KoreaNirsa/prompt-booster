@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KoreaNirsa/prompt-booster/schemas/prompt-pattern.schema.json",
+  "title": "PromptPatternLibrary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "patterns"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "patterns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/PatternDefinition"
+      }
+    }
+  },
+  "$defs": {
+    "PatternDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "category",
+        "keywords",
+        "defaultLocale",
+        "locales",
+        "defaultRequirements",
+        "defaultConstraints",
+        "recommendedOutputFormat",
+        "validationItems",
+        "renderingHints"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "$ref": "#/$defs/PatternCategory"
+        },
+        "keywords": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "defaultLocale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locales": {
+          "type": "object",
+          "description": "locale별 재사용 텍스트 조각입니다. loader가 참조 무결성을 검증합니다."
+        },
+        "defaultRequirements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/RequirementTemplate"
+          }
+        },
+        "defaultConstraints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ConstraintTemplate"
+          }
+        },
+        "recommendedOutputFormat": {
+          "$ref": "#/$defs/OutputFormatTemplate"
+        },
+        "validationItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ValidationTemplate"
+          }
+        },
+        "renderingHints": {
+          "$ref": "#/$defs/RenderingHints"
+        }
+      }
+    },
+    "RequirementTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "priority",
+        "descriptionRef",
+        "acceptanceCriteriaRefs"
+      ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "functional",
+            "nonFunctional",
+            "security",
+            "data",
+            "integration",
+            "testing",
+            "documentation"
+          ]
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "must",
+            "should",
+            "could"
+          ]
+        },
+        "descriptionRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptanceCriteriaRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "ConstraintTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "descriptionRef"
+      ],
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "security",
+            "performance",
+            "maintainability",
+            "compatibility",
+            "architecture",
+            "testing",
+            "deployment",
+            "style"
+          ]
+        },
+        "descriptionRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "OutputFormatTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "sections"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": [
+            "markdown",
+            "json",
+            "yaml",
+            "code",
+            "mixed"
+          ]
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/OutputSectionTemplate"
+          }
+        }
+      }
+    },
+    "OutputSectionTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "titleRef",
+        "descriptionRef",
+        "required"
+      ],
+      "properties": {
+        "titleRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "descriptionRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ValidationTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "severity",
+        "descriptionRef"
+      ],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "descriptionRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "RenderingHints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supportedLocales",
+        "agentProfiles"
+      ],
+      "properties": {
+        "supportedLocales": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "agentProfiles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "neutral",
+              "codex",
+              "claude",
+              "cursor",
+              "windsurf",
+              "gemini_cli",
+              "openhands"
+            ]
+          }
+        }
+      }
+    },
+    "PatternCategory": {
+      "type": "string",
+      "enum": [
+        "backend",
+        "frontend",
+        "ai",
+        "devops",
+        "architecture"
+      ]
+    }
+  }
+}
