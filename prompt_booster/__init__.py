@@ -13,6 +13,7 @@ from .optimizer import (
     ValidationIssue,
     optimize_prompt,
 )
+from .prompt_renderer import PromptRenderer
 from .rif_engine import RifEngine, RifFormatSection, RifInstruction, RifOutput, RifRole
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
     "MatchedSignal",
     "OptimizerResult",
     "PromptOptimizer",
+    "PromptRenderer",
     "RifEngine",
     "RifFormatSection",
     "RifInstruction",

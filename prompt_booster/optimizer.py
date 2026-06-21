@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import hashlib
 
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
+from .prompt_renderer import PromptRenderer
 from .rif_engine import RifEngine, RifOutput
 
 
@@ -55,9 +56,15 @@ class OptimizerResult:
 
 
 class PromptOptimizer:
-    def __init__(self, analyzer: IntentAnalyzer | None = None, rif_engine: RifEngine | None = None) -> None:
+    def __init__(
+        self,
+        analyzer: IntentAnalyzer | None = None,
+        rif_engine: RifEngine | None = None,
+        renderer: PromptRenderer | None = None,
+    ) -> None:
         self._analyzer = analyzer or IntentAnalyzer()
         self._rif_engine = rif_engine or RifEngine()
+        self._renderer = renderer or PromptRenderer()
 
     def optimize(self, source_text: str, target: str | None = None) -> OptimizerResult:
         selected_target = target or "neutral"
@@ -106,7 +113,7 @@ class PromptOptimizer:
         )
 
         pipeline_steps.append("render_prompt")
-        rendered_prompt = self._render_prompt(prompt_ir)
+        rendered_prompt = self._renderer.render(prompt_ir)
 
         return OptimizerResult(
             source_text=source_text,
@@ -265,39 +272,6 @@ class PromptOptimizer:
                 ],
             },
         ]
-
-    def _render_prompt(self, prompt_ir: dict[str, object]) -> str:
-        context = prompt_ir["context"]
-        requirements = prompt_ir["requirements"]
-        constraints = prompt_ir["constraints"]
-        output_sections = prompt_ir["outputSpec"]["sections"]
-        validations = prompt_ir["validationRules"]
-        instruction_expectations = requirements[0]["acceptanceCriteria"]
-
-        return "\n".join(
-            [
-                "# Optimized Prompt",
-                "",
-                "## Role",
-                str(context["audience"]),
-                "",
-                "## Instruction",
-                str(requirements[0]["description"]),
-                *[f"- {expectation}" for expectation in instruction_expectations],
-                "",
-                "## Requirements",
-                *[f"- {requirement['description']}" for requirement in requirements],
-                "",
-                "## Constraints",
-                *[f"- {constraint['description']}" for constraint in constraints],
-                "",
-                "## Output Format",
-                *[f"- {section['title']}" for section in output_sections],
-                "",
-                "## Validation",
-                *[f"- {rule['description']}" for rule in validations],
-            ]
-        )
 
     def _render_recovery_prompt(self, source_text: str, analysis: AnalyzerResult) -> str:
         return "\n".join(
