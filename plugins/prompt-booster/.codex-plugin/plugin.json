@@ -1,0 +1,28 @@
+{
+  "name": "prompt-booster",
+  "version": "0.1.0",
+  "description": "Developer-focused prompt optimization plugin for Codex.",
+  "author": {
+    "name": "KoreaNirsa",
+    "url": "https://github.com/KoreaNirsa"
+  },
+  "homepage": "https://github.com/KoreaNirsa/prompt-booster",
+  "repository": "https://github.com/KoreaNirsa/prompt-booster",
+  "license": "Apache-2.0",
+  "keywords": ["prompt", "codex", "optimizer", "developer-tools"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Prompt Booster",
+    "shortDescription": "Optimize vague development requests into structured prompts.",
+    "longDescription": "Prompt Booster analyzes developer requests, applies reusable prompt patterns, scores prompt quality, and returns structured Codex-ready prompt output.",
+    "developerName": "KoreaNirsa",
+    "category": "Productivity",
+    "capabilities": ["Interactive"],
+    "defaultPrompt": [
+      "JWT 로그인 만들어줘 요청을 Codex용 프롬프트로 최적화해줘.",
+      "RAG 챗봇 구현 요청의 누락된 요구사항을 분석해줘.",
+      "사용 가능한 Prompt-Booster 패턴을 보여줘."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
