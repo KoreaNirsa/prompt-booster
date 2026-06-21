@@ -313,6 +313,8 @@ Prompt Quality Score
 * Validation
 * Technical Specificity
 
+품질 벤치마크와 성공 지표는 [`docs/quality-benchmarks.md`](docs/quality-benchmarks.md)에 정리되어 있습니다.
+
 ---
 
 # 🧩 Token Optimization
