@@ -10,6 +10,53 @@ Prompt-Booster는 개발자의 짧고 모호한 요청을 AI 코딩 에이전트
 
 ---
 
+# 🚦 빠른 시작
+
+## 요구 환경
+
+* Python 3.10 이상
+* Git
+
+현재 저장소는 별도 패키징 파일 없이 표준 라이브러리 기반 로컬 실행을 기준으로 합니다.
+
+## 저장소 준비
+
+```bash
+git clone https://github.com/KoreaNirsa/prompt-booster.git
+cd prompt-booster
+python -m unittest discover -s tests
+```
+
+## 기본 사용법
+
+Codex Plugin entrypoint를 직접 실행해 최적화 결과를 확인할 수 있습니다.
+
+```bash
+python plugins/prompt-booster/scripts/prompt_booster_command.py prompt.optimize --source-text "JWT 로그인 만들어줘" --target codex
+```
+
+지원 명령은 다음과 같습니다.
+
+| 명령 | 목적 |
+| --- | --- |
+| `prompt.optimize` | 원문 요청을 분석하고 target별 최적화 프롬프트를 반환합니다. |
+| `prompt.score` | 원문 요청의 Prompt Quality Score와 진단 정보를 반환합니다. |
+| `prompt.explain` | analyzer, pattern, clarification 흐름을 설명합니다. |
+| `prompt.patterns` | 사용 가능한 Pattern Library 항목을 조회합니다. |
+
+라이브러리 코드에서는 `optimize_prompt`를 직접 호출할 수 있습니다.
+
+```python
+from prompt_booster import optimize_prompt
+
+result = optimize_prompt("게시판 설계해줘", target="neutral")
+print(result.rendered_prompt)
+```
+
+Codex Plugin 사용 가이드는 [`docs/codex-plugin-usage.md`](docs/codex-plugin-usage.md)에 정리되어 있습니다.
+
+---
+
 # 🤔 왜 Prompt-Booster가 필요한가?
 
 많은 개발자들이 다음과 같이 요청합니다.
@@ -290,7 +337,7 @@ Prompt-Booster는 프롬프트 품질을 점수화합니다.
 ```text
 Prompt Quality Score
 
-15 / 100
+13 / 100
 ```
 
 최적화 후
@@ -300,7 +347,7 @@ Prompt Quality Score
 ```text
 Prompt Quality Score
 
-95 / 100
+98 / 100
 ```
 
 평가 기준
@@ -329,43 +376,90 @@ Prompt-Booster는 프롬프트를 길게 늘리는 방식으로 품질을 높이
 
 ---
 
-# 💡 예시
+# 💡 변환 예시
 
-입력
+아래 예시는 현재 `prompt.optimize --target neutral` 결과의 주요 부분을 축약한 것입니다.
+
+## JWT 로그인 만들어줘
+
+변환 전
 
 ```text
 JWT 로그인 만들어줘
 ```
 
-Prompt-Booster 출력
+변환 후
 
 ```text
-당신은 시니어 Spring Boot 백엔드 개발자입니다.
+## Role
+백엔드 개발자
 
-목표:
-Spring Security와 JWT를 사용한 인증 시스템을 구현하세요.
+## Instruction
+code_generation 요청을 backend 도메인으로 최적화합니다.
 
-요구사항:
-- Access Token
-- Refresh Token
-- Stateless 인증
-- BCrypt PasswordEncoder
+## Requirements
+- JWT 인증 흐름을 Access Token과 Refresh Token 기준으로 분리해 정의합니다.
+- 토큰 만료, refresh strategy, secret handling, 인증 실패 오류 응답을 명시합니다.
 
-출력:
-1. 프로젝트 구조
-2. Entity
-3. DTO
-4. SecurityConfig
-5. JWT Filter
-6. Service
-7. Controller
-8. 테스트 코드
+## Output Format
+- 프로젝트 구조
+- 핵심 코드
+- 테스트
 
-검증:
-- 로그인 성공 여부
-- 토큰 만료 처리
-- 예외 처리
+## Validation
+- JWT 만료, 서명 오류, 인증 실패 응답이 분리되어 있는지 확인합니다.
+- Controller에 비즈니스 로직이 들어가지 않았는지 확인합니다.
 ```
+
+품질 점수는 원문 21/100에서 최적화 후 99/100으로 상승합니다.
+
+## 게시판 설계해줘
+
+변환 전
+
+```text
+게시판 설계해줘
+```
+
+변환 후
+
+```text
+## Role
+소프트웨어 아키텍트
+
+## Instruction
+system_design 요청을 architecture 도메인으로 최적화합니다.
+
+## Requirements
+- 모듈 책임과 의존성 방향을 포함합니다.
+- 주요 구성 요소와 데이터 흐름을 제시합니다.
+- 검증 가능한 완료 기준을 포함합니다.
+
+## Output Format
+- 설계 목표
+- 구성 요소
+- 데이터 흐름
+- 검증 기준
+
+## Validation
+- 감지된 intent와 category가 최종 프롬프트 목표에 반영되어 있는지 확인합니다.
+- 요구사항, 제약조건, 출력 형식, 검증 항목이 누락되지 않았는지 확인합니다.
+```
+
+품질 점수는 원문 19/100에서 최적화 후 98/100으로 상승합니다.
+
+---
+
+# 📚 문서 안내
+
+| 문서 | 목적 |
+| --- | --- |
+| [`docs/prompt-ir.md`](docs/prompt-ir.md) | Prompt IR 구조와 예시를 설명합니다. |
+| [`docs/prompt-pattern-library.md`](docs/prompt-pattern-library.md) | Pattern Library schema, category, pattern 추가 절차를 설명합니다. |
+| [`docs/prompt-quality-score.md`](docs/prompt-quality-score.md) | Prompt Quality Score dimension과 scoring example을 설명합니다. |
+| [`docs/codex-plugin-usage.md`](docs/codex-plugin-usage.md) | Codex Plugin 실행 방법과 명령 사용법을 설명합니다. |
+| [`docs/roadmap.md`](docs/roadmap.md) | v0.1부터 v1.0까지의 목표를 설명합니다. |
+| [`docs/test-strategy.md`](docs/test-strategy.md) | 테스트 계층과 로컬 검증 명령을 설명합니다. |
 
 ---
 
@@ -379,6 +473,12 @@ Spring Security와 JWT를 사용한 인증 시스템을 구현하세요.
 * OpenHands
 
 Agent별 target 확장 기준은 [`docs/agent-adapters.md`](docs/agent-adapters.md)에 정리되어 있습니다.
+
+---
+
+# 🗺️ 로드맵
+
+Prompt-Booster의 단계별 목표는 [`docs/roadmap.md`](docs/roadmap.md)에 정리되어 있습니다.
 
 ---
 
