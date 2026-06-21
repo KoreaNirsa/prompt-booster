@@ -1,3 +1,4 @@
+from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
 from .intent_analyzer import (
     AnalyzerResult,
     Category,
@@ -17,8 +18,10 @@ from .prompt_renderer import PromptRenderer
 from .rif_engine import RifEngine, RifFormatSection, RifInstruction, RifOutput, RifRole
 
 __all__ = [
+    "AdaptiveGrillMe",
     "AnalyzerResult",
     "Category",
+    "ClarificationQuestion",
     "FallbackInfo",
     "IntentAnalyzer",
     "IntentType",

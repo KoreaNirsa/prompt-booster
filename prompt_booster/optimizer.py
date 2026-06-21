@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 
+from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
 from .prompt_renderer import PromptRenderer
 from .rif_engine import RifEngine, RifOutput
@@ -34,6 +35,7 @@ class OptimizerResult:
     source_text: str
     target: str
     analysis: AnalyzerResult | None
+    clarification_questions: tuple[ClarificationQuestion, ...]
     prompt_ir: dict[str, object] | None
     rendered_prompt: str | None
     errors: tuple[ValidationIssue, ...]
@@ -48,6 +50,7 @@ class OptimizerResult:
             "sourceText": self.source_text,
             "target": self.target,
             "analysis": self.analysis.to_dict() if self.analysis else None,
+            "clarificationQuestions": [question.to_dict() for question in self.clarification_questions],
             "promptIr": self.prompt_ir,
             "renderedPrompt": self.rendered_prompt,
             "errors": [error.to_dict() for error in self.errors],
@@ -61,10 +64,12 @@ class PromptOptimizer:
         analyzer: IntentAnalyzer | None = None,
         rif_engine: RifEngine | None = None,
         renderer: PromptRenderer | None = None,
+        adaptive_grill: AdaptiveGrillMe | None = None,
     ) -> None:
         self._analyzer = analyzer or IntentAnalyzer()
         self._rif_engine = rif_engine or RifEngine()
         self._renderer = renderer or PromptRenderer()
+        self._adaptive_grill = adaptive_grill or AdaptiveGrillMe()
 
     def optimize(self, source_text: str, target: str | None = None) -> OptimizerResult:
         selected_target = target or "neutral"
@@ -74,6 +79,7 @@ class PromptOptimizer:
                 source_text=source_text,
                 target=selected_target,
                 analysis=None,
+                clarification_questions=(),
                 prompt_ir=None,
                 rendered_prompt=None,
                 errors=(validation_error,),
@@ -87,6 +93,7 @@ class PromptOptimizer:
                 source_text=source_text,
                 target=selected_target,
                 analysis=analysis,
+                clarification_questions=(),
                 prompt_ir=None,
                 rendered_prompt=self._render_recovery_prompt(source_text, analysis),
                 errors=(
@@ -97,6 +104,9 @@ class PromptOptimizer:
                 ),
                 pipeline_steps=tuple(pipeline_steps),
             )
+
+        pipeline_steps.append("generate_clarification_questions")
+        clarification_questions = self._adaptive_grill.generate(source_text, analysis)
 
         pipeline_steps.append("generate_rif")
         rif = self._rif_engine.generate(source_text, analysis)
@@ -119,6 +129,7 @@ class PromptOptimizer:
             source_text=source_text,
             target=selected_target,
             analysis=analysis,
+            clarification_questions=clarification_questions,
             prompt_ir=prompt_ir,
             rendered_prompt=rendered_prompt,
             errors=(),
