@@ -1207,6 +1207,660 @@
           "claude"
         ]
       }
+    },
+    {
+      "id": "ai.rag",
+      "category": "ai",
+      "keywords": [
+        "rag",
+        "retrieval augmented generation",
+        "retrieval",
+        "chunking",
+        "citation",
+        "source handling",
+        "벡터 검색",
+        "출처"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.retrieval": "RAG의 retrieval strategy, query 변환, top-k, reranking 기준을 정의합니다.",
+          "acc.retrieval": "검색 대상, ranking 기준, 검색 실패 시 fallback behavior가 설명됩니다.",
+          "req.chunking": "문서 chunking, overlap, metadata, source handling 방식을 명시합니다.",
+          "acc.chunking": "chunk 크기, 출처 보존, citation 생성 기준이 구분됩니다.",
+          "req.evaluation": "answer quality, citation accuracy, retrieval recall에 대한 evaluation criteria를 정의합니다.",
+          "acc.evaluation": "정답성, 근거 일치, 출처 누락, fallback 응답을 검증할 수 있습니다.",
+          "con.observability": "retrieval query, selected source, fallback reason을 관측할 수 있게 기록합니다.",
+          "con.safety": "근거 없는 답변은 생성하지 않고 source handling 실패 시 제한된 fallback을 반환합니다.",
+          "section.retrieval.title": "Retrieval Design",
+          "section.retrieval.description": "retrieval strategy, chunking, metadata, citation 또는 source handling 정책을 설명합니다.",
+          "section.flow.title": "Generation Flow",
+          "section.flow.description": "검색, 컨텍스트 구성, 답변 생성, fallback behavior 흐름을 정리합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "evaluation criteria, citation accuracy, retrieval recall 검증 항목을 포함합니다.",
+          "section.observability.title": "Observability",
+          "section.observability.description": "query, retrieved chunks, source, fallback reason 로그 기준을 설명합니다.",
+          "val.evaluation": "evaluation criteria가 retrieval과 generation 품질을 모두 다루는지 확인합니다.",
+          "val.source": "citation 또는 source handling이 누락되지 않았는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.retrieval",
+          "acceptanceCriteriaRefs": [
+            "acc.retrieval"
+          ]
+        },
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.chunking",
+          "acceptanceCriteriaRefs": [
+            "acc.chunking"
+          ]
+        },
+        {
+          "category": "testing",
+          "priority": "must",
+          "descriptionRef": "req.evaluation",
+          "acceptanceCriteriaRefs": [
+            "acc.evaluation"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.observability"
+        },
+        {
+          "scope": "security",
+          "descriptionRef": "con.safety"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.retrieval.title",
+            "descriptionRef": "section.retrieval.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.flow.title",
+            "descriptionRef": "section.flow.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.observability.title",
+            "descriptionRef": "section.observability.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.evaluation"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.source"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "rag",
+          "retrieval",
+          "chunking",
+          "citation"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "ai.agent",
+      "category": "ai",
+      "keywords": [
+        "agent",
+        "ai agent",
+        "tool call",
+        "tool boundary",
+        "planner",
+        "function calling",
+        "에이전트",
+        "도구 호출"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.tool-boundary": "Agent의 tool boundary, tool input/output contract, 권한 범위를 정의합니다.",
+          "acc.tool-boundary": "각 tool의 사용 조건, 금지 동작, 실패 응답이 구분됩니다.",
+          "req.failure": "tool error handling, retry, timeout, idempotency 전략을 명시합니다.",
+          "acc.failure": "중복 실행 방지, 부분 실패, 재시도 중단 기준이 설명됩니다.",
+          "req.safety": "safety constraints와 사용자 확인이 필요한 고위험 액션을 정의합니다.",
+          "acc.safety": "권한 상승, 외부 쓰기, 비가역 작업은 명시적 확인 없이는 실행되지 않습니다.",
+          "con.observability": "tool call, decision reason, error handling 결과를 추적할 수 있게 기록합니다.",
+          "con.scope": "Agent가 비즈니스 로직을 추측하지 않고 필요한 질문을 먼저 생성합니다.",
+          "section.boundary.title": "Tool Boundary",
+          "section.boundary.description": "tool boundary, 입력 계약, 출력 계약, 권한 범위를 설명합니다.",
+          "section.failure.title": "Failure Handling",
+          "section.failure.description": "error handling, retry, timeout, idempotency 정책을 정리합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "safety constraints, tool result 검증, 중복 실행 방지 기준을 포함합니다.",
+          "section.observability.title": "Observability",
+          "section.observability.description": "tool call 로그, decision trace, 실패 원인 기록 기준을 설명합니다.",
+          "val.boundary": "tool boundary와 safety constraints가 명확히 분리되어 있는지 확인합니다.",
+          "val.idempotency": "idempotency와 error handling이 tool 실행 흐름에 포함되는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "integration",
+          "priority": "must",
+          "descriptionRef": "req.tool-boundary",
+          "acceptanceCriteriaRefs": [
+            "acc.tool-boundary"
+          ]
+        },
+        {
+          "category": "nonFunctional",
+          "priority": "must",
+          "descriptionRef": "req.failure",
+          "acceptanceCriteriaRefs": [
+            "acc.failure"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.safety",
+          "acceptanceCriteriaRefs": [
+            "acc.safety"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.observability"
+        },
+        {
+          "scope": "security",
+          "descriptionRef": "con.scope"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.boundary.title",
+            "descriptionRef": "section.boundary.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.failure.title",
+            "descriptionRef": "section.failure.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.observability.title",
+            "descriptionRef": "section.observability.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.boundary"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.idempotency"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "agent",
+          "tool boundary",
+          "tool call",
+          "idempotency"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "ai.chatbot",
+      "category": "ai",
+      "keywords": [
+        "chatbot",
+        "chat bot",
+        "conversation",
+        "llm chat",
+        "message history",
+        "챗봇",
+        "대화",
+        "상담봇"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.conversation": "Chatbot의 conversation state, message history, system instruction 경계를 정의합니다.",
+          "acc.conversation": "대화 컨텍스트 유지, 초기화, 사용자별 상태 보관 기준이 설명됩니다.",
+          "req.fallback": "모르는 질문, 정책 위반, 모델 오류에 대한 fallback behavior를 명시합니다.",
+          "acc.fallback": "답변 불가, 재질문, 상담 연결 또는 제한 응답 조건이 구분됩니다.",
+          "req.evaluation": "응답 품질, 안전성, hallucination 방지에 대한 evaluation criteria를 정의합니다.",
+          "acc.evaluation": "정확성, 정책 준수, 사용자 만족, 실패 응답을 검증할 수 있습니다.",
+          "con.safety": "민감 정보와 정책 위반 요청은 safety constraints에 따라 제한합니다.",
+          "con.observability": "conversation turn, fallback reason, model error를 관측할 수 있게 기록합니다.",
+          "section.flow.title": "Conversation Flow",
+          "section.flow.description": "conversation state, message history, system instruction 경계를 설명합니다.",
+          "section.fallback.title": "Fallback Behavior",
+          "section.fallback.description": "모르는 질문, 정책 위반, 모델 오류 처리 흐름을 정리합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "evaluation criteria, hallucination 방지, 안전성 검증 기준을 포함합니다.",
+          "section.observability.title": "Observability",
+          "section.observability.description": "대화 로그, fallback reason, model error 기록 기준을 설명합니다.",
+          "val.evaluation": "validation criteria가 응답 품질과 안전성을 모두 다루는지 확인합니다.",
+          "val.fallback": "fallback behavior가 사용자 경험과 안전 제약을 함께 고려하는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.conversation",
+          "acceptanceCriteriaRefs": [
+            "acc.conversation"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.fallback",
+          "acceptanceCriteriaRefs": [
+            "acc.fallback"
+          ]
+        },
+        {
+          "category": "testing",
+          "priority": "must",
+          "descriptionRef": "req.evaluation",
+          "acceptanceCriteriaRefs": [
+            "acc.evaluation"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "security",
+          "descriptionRef": "con.safety"
+        },
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.observability"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.flow.title",
+            "descriptionRef": "section.flow.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.fallback.title",
+            "descriptionRef": "section.fallback.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.observability.title",
+            "descriptionRef": "section.observability.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.evaluation"
+        },
+        {
+          "severity": "warning",
+          "descriptionRef": "val.fallback"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "chatbot",
+          "conversation",
+          "message history",
+          "fallback"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "ai.embedding",
+      "category": "ai",
+      "keywords": [
+        "embedding",
+        "embeddings",
+        "embed",
+        "semantic search",
+        "chunk embedding",
+        "임베딩",
+        "의미 검색"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.input": "Embedding 생성 대상, preprocessing, chunking, metadata 보존 기준을 정의합니다.",
+          "acc.input": "입력 정규화, chunk 단위, metadata 필드, 제외 대상이 구분됩니다.",
+          "req.model": "embedding model, dimension, batching, 재생성 조건을 명시합니다.",
+          "acc.model": "모델 변경, 재색인, 비용 제한, 실패 재시도 기준이 설명됩니다.",
+          "req.evaluation": "semantic search 품질과 drift를 확인하는 evaluation criteria를 정의합니다.",
+          "acc.evaluation": "샘플 query, expected neighbor, similarity threshold를 검증할 수 있습니다.",
+          "con.privacy": "개인정보와 secret은 embedding input에 포함하지 않습니다.",
+          "con.observability": "batch 결과, 실패 원인, model version을 관측할 수 있게 기록합니다.",
+          "section.pipeline.title": "Embedding Pipeline",
+          "section.pipeline.description": "preprocessing, chunking, metadata, embedding model 흐름을 설명합니다.",
+          "section.storage.title": "Storage Contract",
+          "section.storage.description": "embedding dimension, metadata, model version, 재생성 기준을 정리합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "semantic search 품질, drift, threshold 검증 기준을 포함합니다.",
+          "section.observability.title": "Observability",
+          "section.observability.description": "batch 로그, 실패 원인, model version 기록 기준을 설명합니다.",
+          "val.privacy": "embedding input에 개인정보와 secret이 포함되지 않는지 확인합니다.",
+          "val.evaluation": "validation criteria가 similarity 품질과 재색인 조건을 다루는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.input",
+          "acceptanceCriteriaRefs": [
+            "acc.input"
+          ]
+        },
+        {
+          "category": "integration",
+          "priority": "must",
+          "descriptionRef": "req.model",
+          "acceptanceCriteriaRefs": [
+            "acc.model"
+          ]
+        },
+        {
+          "category": "testing",
+          "priority": "must",
+          "descriptionRef": "req.evaluation",
+          "acceptanceCriteriaRefs": [
+            "acc.evaluation"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "security",
+          "descriptionRef": "con.privacy"
+        },
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.observability"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.pipeline.title",
+            "descriptionRef": "section.pipeline.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.storage.title",
+            "descriptionRef": "section.storage.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.observability.title",
+            "descriptionRef": "section.observability.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.privacy"
+        },
+        {
+          "severity": "warning",
+          "descriptionRef": "val.evaluation"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "embedding",
+          "semantic search",
+          "chunking",
+          "model version"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "ai.vector-database",
+      "category": "ai",
+      "keywords": [
+        "vector database",
+        "vector db",
+        "similarity search",
+        "indexing",
+        "metadata filter",
+        "벡터 데이터베이스",
+        "벡터 DB",
+        "유사도 검색"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.indexing": "Vector Database의 indexing, namespace, collection, metadata schema를 정의합니다.",
+          "acc.indexing": "index type, dimension, metadata 필드, tenant 경계가 구분됩니다.",
+          "req.search": "similarity search, metadata filter, score threshold, reranking 기준을 명시합니다.",
+          "acc.search": "검색 query, filter 조건, threshold 미달 fallback이 설명됩니다.",
+          "req.lifecycle": "vector update/delete, 재색인, stale data 처리 고려사항을 포함합니다.",
+          "acc.lifecycle": "upsert, delete, tombstone, 재색인 절차와 영향 범위가 구분됩니다.",
+          "con.observability": "검색 latency, match count, score distribution, failure mode를 관측합니다.",
+          "con.security": "metadata에 secret과 민감 정보를 저장하지 않고 접근 범위를 제한합니다.",
+          "section.indexing.title": "Indexing Design",
+          "section.indexing.description": "indexing, namespace, metadata schema, dimension 기준을 설명합니다.",
+          "section.search.title": "Similarity Search",
+          "section.search.description": "similarity search, metadata filter, threshold, fallback behavior를 정리합니다.",
+          "section.validation.title": "Validation Criteria",
+          "section.validation.description": "검색 품질, update/delete 반영, metadata filter 검증 기준을 포함합니다.",
+          "section.lifecycle.title": "Lifecycle Operations",
+          "section.lifecycle.description": "update/delete, 재색인, stale data 처리 절차를 설명합니다.",
+          "val.lifecycle": "update/delete 고려사항과 재색인 절차가 누락되지 않았는지 확인합니다.",
+          "val.search": "similarity search와 metadata filter 검증 기준이 포함되는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.indexing",
+          "acceptanceCriteriaRefs": [
+            "acc.indexing"
+          ]
+        },
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.search",
+          "acceptanceCriteriaRefs": [
+            "acc.search"
+          ]
+        },
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.lifecycle",
+          "acceptanceCriteriaRefs": [
+            "acc.lifecycle"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "performance",
+          "descriptionRef": "con.observability"
+        },
+        {
+          "scope": "security",
+          "descriptionRef": "con.security"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.indexing.title",
+            "descriptionRef": "section.indexing.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.search.title",
+            "descriptionRef": "section.search.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.validation.title",
+            "descriptionRef": "section.validation.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.lifecycle.title",
+            "descriptionRef": "section.lifecycle.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.lifecycle"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.search"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "vector database",
+          "indexing",
+          "metadata",
+          "similarity search"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
     }
   ]
 }

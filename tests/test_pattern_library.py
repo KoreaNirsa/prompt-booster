@@ -29,6 +29,13 @@ EXPECTED_FRONTEND_PATTERN_IDS = {
     "frontend.dashboard",
     "frontend.admin-page",
 }
+EXPECTED_AI_PATTERN_IDS = {
+    "ai.rag",
+    "ai.agent",
+    "ai.chatbot",
+    "ai.embedding",
+    "ai.vector-database",
+}
 
 
 def load_default_payload():
@@ -126,6 +133,38 @@ class PatternLibraryTest(unittest.TestCase):
                 self.assertIn("responsive layout", serialized)
                 self.assertTrue("accessibility" in serialized or "접근성" in serialized)
 
+    def test_ai_pattern_templates_exist_with_matching_metadata(self):
+        library = PatternLibrary.load_default()
+        pattern_ids = {pattern.id for pattern in library.patterns}
+
+        self.assertTrue(EXPECTED_AI_PATTERN_IDS <= pattern_ids)
+        for pattern_id in EXPECTED_AI_PATTERN_IDS:
+            with self.subTest(pattern=pattern_id):
+                pattern = library.get(pattern_id)
+
+                self.assertEqual("ai", pattern.category)
+                self.assertTrue(pattern.keywords)
+                self.assertTrue(pattern.matching_metadata.intent_hints)
+                self.assertTrue(pattern.matching_metadata.domain_signals)
+                self.assertGreaterEqual(pattern.matching_metadata.confidence_weight, 1)
+                self.assertLessEqual(pattern.matching_metadata.confidence_weight, 5)
+
+    def test_ai_patterns_include_required_operational_criteria(self):
+        library = PatternLibrary.load_default()
+        rag_defaults = json.dumps(library.get("ai.rag").to_prompt_defaults().to_dict(), ensure_ascii=False).casefold()
+        agent_defaults = json.dumps(library.get("ai.agent").to_prompt_defaults().to_dict(), ensure_ascii=False).casefold()
+        vector_defaults = json.dumps(
+            library.get("ai.vector-database").to_prompt_defaults().to_dict(),
+            ensure_ascii=False,
+        ).casefold()
+
+        for term in ("retrieval strategy", "chunking", "source handling", "fallback behavior", "evaluation criteria"):
+            self.assertIn(term, rag_defaults)
+        for term in ("tool boundary", "error handling", "idempotency", "safety constraints"):
+            self.assertIn(term, agent_defaults)
+        for term in ("indexing", "metadata", "similarity search", "update/delete"):
+            self.assertIn(term, vector_defaults)
+
     def test_default_pattern_matches_analyzer_result(self):
         text = "Implement JWT login API"
         library = PatternLibrary.load_default()
@@ -176,6 +215,18 @@ class PatternLibraryTest(unittest.TestCase):
                 self.assertTrue(result.ok)
                 for term in expected_terms:
                     self.assertIn(term, serialized)
+
+    def test_ai_prompt_is_augmented_with_validation_criteria(self):
+        result = optimize_prompt("RAG 챗봇 만들어줘")
+        rag_match = next(match for match in result.pattern_matches if match.pattern.id == "ai.rag")
+        defaults = rag_match.pattern.to_prompt_defaults().to_dict()
+        serialized = json.dumps(defaults, ensure_ascii=False).casefold()
+
+        self.assertTrue(result.ok)
+        self.assertIn("validation criteria", serialized)
+        self.assertIn("evaluation criteria", serialized)
+        self.assertIn("citation", serialized)
+        self.assertIn("fallback behavior", serialized)
 
     def test_pattern_definition_fails_fast_without_keywords(self):
         payload = load_default_payload()

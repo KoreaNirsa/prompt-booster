@@ -33,6 +33,13 @@ EXPECTED_FRONTEND_PATTERNS = {
     "frontend.dashboard",
     "frontend.admin-page",
 }
+EXPECTED_AI_PATTERNS = {
+    "ai.rag",
+    "ai.agent",
+    "ai.chatbot",
+    "ai.embedding",
+    "ai.vector-database",
+}
 
 
 def load_schema_validator():
@@ -61,6 +68,7 @@ def main():
     pattern_ids = {pattern.id for pattern in library.patterns}
     require(EXPECTED_BACKEND_PATTERNS <= pattern_ids, "필수 백엔드 패턴이 누락되었습니다.")
     require(EXPECTED_FRONTEND_PATTERNS <= pattern_ids, "필수 프론트엔드 패턴이 누락되었습니다.")
+    require(EXPECTED_AI_PATTERNS <= pattern_ids, "필수 AI 패턴이 누락되었습니다.")
     print("Prompt Pattern Library 정의가 유효합니다.")
 
 
