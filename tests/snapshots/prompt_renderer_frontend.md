@@ -44,14 +44,10 @@ code_generation 요청을 frontend 도메인으로 최적화합니다.
 - 구현 목표: 구현해야 할 기능과 범위를 요약합니다.
 - 핵심 변경 사항: 수정하거나 생성해야 할 주요 코드 단위를 설명합니다.
 - 검증 계획: 테스트와 자체 검증 기준을 정의합니다.
-- File Structure: route, page, layout, feature, shared component 배치를 설명합니다.
-- Components: 주요 component 역할, props, state ownership을 정리합니다.
-- Tests: routing, state handling, loading/error/empty states 검증 테스트를 포함합니다.
-- Styling Approach: 전역 스타일, component style, responsive layout 전략을 설명합니다.
-- File Structure: dashboard route, widget, chart, table, filter, data 파일 배치를 설명합니다.
-- Components: KPI card, chart, table, filter component 역할을 정리합니다.
-- Tests: filter state, loading/error/empty states, chart fallback 테스트를 포함합니다.
-- Styling Approach: density, responsive grid, visual state styling approach를 설명합니다.
+- File Structure: route, page, layout, feature, shared component 배치를 설명합니다.; dashboard route, widget, chart, table, filter, data 파일 배치를 설명합니다.
+- Components: 주요 component 역할, props, state ownership을 정리합니다.; KPI card, chart, table, filter component 역할을 정리합니다.
+- Tests: routing, state handling, loading/error/empty states 검증 테스트를 포함합니다.; filter state, loading/error/empty states, chart fallback 테스트를 포함합니다.
+- Styling Approach: 전역 스타일, component style, responsive layout 전략을 설명합니다.; density, responsive grid, visual state styling approach를 설명합니다.
 
 ## Validation
 - [error] 감지된 intent와 category가 최종 프롬프트 목표에 반영되어 있는지 확인합니다.

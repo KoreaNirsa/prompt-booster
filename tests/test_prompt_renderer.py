@@ -69,6 +69,50 @@ class PromptRendererTest(unittest.TestCase):
         self.assertEqual(1, rendered_prompt.count("  - 기준"))
         self.assertEqual(1, rendered_prompt.count("- [testing] 테스트 제약"))
 
+    def test_renderer_compacts_duplicate_structured_items_before_rendering(self):
+        rendered_prompt = PromptRenderer().render(
+            {
+                "intent": {"summary": "토큰 최적화 렌더링을 검증합니다."},
+                "context": {"audience": "테스트 엔지니어"},
+                "requirements": [
+                    {
+                        "description": "중복 요구사항",
+                        "priority": "should",
+                        "acceptanceCriteria": ["기준 A", "기준 B"],
+                    },
+                    {
+                        "description": "중복 요구사항",
+                        "priority": "must",
+                        "acceptanceCriteria": ["기준 B", "기준 C"],
+                    },
+                ],
+                "constraints": [
+                    {"scope": "security", "description": "중복 제약"},
+                    {"scope": "testing", "description": "중복 제약"},
+                ],
+                "outputSpec": {
+                    "sections": [
+                        {"title": "중복 섹션", "description": "첫 번째 설명", "required": True},
+                        {"title": "중복 섹션", "description": "두 번째 설명", "required": True},
+                    ]
+                },
+                "validationRules": [
+                    {"severity": "warning", "description": "중복 검증"},
+                    {"severity": "error", "description": "중복 검증"},
+                ],
+            }
+        )
+
+        self.assertEqual(1, rendered_prompt.count("- [must] 중복 요구사항"))
+        self.assertNotIn("- [should] 중복 요구사항", rendered_prompt)
+        self.assertEqual(1, rendered_prompt.count("  - 기준 A"))
+        self.assertEqual(1, rendered_prompt.count("  - 기준 B"))
+        self.assertEqual(1, rendered_prompt.count("  - 기준 C"))
+        self.assertIn("- [security, testing] 중복 제약", rendered_prompt)
+        self.assertEqual(1, rendered_prompt.count("- 중복 섹션:"))
+        self.assertIn("첫 번째 설명; 두 번째 설명", rendered_prompt)
+        self.assertEqual(1, rendered_prompt.count("- [error] 중복 검증"))
+
 
 if __name__ == "__main__":
     unittest.main()

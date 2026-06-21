@@ -315,6 +315,16 @@ Prompt Quality Score
 
 ---
 
+# 🧩 Token Optimization
+
+Prompt-Booster는 프롬프트를 길게 늘리는 방식으로 품질을 높이지 않습니다.
+
+중간 상태는 Prompt IR로 구조화해 유지하고, 최종 렌더링 직전에 중복 요구사항, 제약조건, 출력 섹션, 검증 항목을 압축합니다.
+
+자세한 기준은 [`docs/token-optimization.md`](docs/token-optimization.md)에 정리되어 있습니다.
+
+---
+
 # 💡 예시
 
 입력

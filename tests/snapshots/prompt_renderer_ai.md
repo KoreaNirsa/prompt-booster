@@ -46,12 +46,10 @@ code_generation 요청을 ai 도메인으로 최적화합니다.
 - 검증 계획: 테스트와 자체 검증 기준을 정의합니다.
 - Retrieval Design: retrieval strategy, chunking, metadata, citation 또는 source handling 정책을 설명합니다.
 - Generation Flow: 검색, 컨텍스트 구성, 답변 생성, fallback behavior 흐름을 정리합니다.
-- Validation Criteria: evaluation criteria, citation accuracy, retrieval recall 검증 항목을 포함합니다.
-- Observability: query, retrieved chunks, source, fallback reason 로그 기준을 설명합니다.
+- Validation Criteria: evaluation criteria, citation accuracy, retrieval recall 검증 항목을 포함합니다.; evaluation criteria, hallucination 방지, 안전성 검증 기준을 포함합니다.
+- Observability: query, retrieved chunks, source, fallback reason 로그 기준을 설명합니다.; 대화 로그, fallback reason, model error 기록 기준을 설명합니다.
 - Conversation Flow: conversation state, message history, system instruction 경계를 설명합니다.
 - Fallback Behavior: 모르는 질문, 정책 위반, 모델 오류 처리 흐름을 정리합니다.
-- Validation Criteria: evaluation criteria, hallucination 방지, 안전성 검증 기준을 포함합니다.
-- Observability: 대화 로그, fallback reason, model error 기록 기준을 설명합니다.
 
 ## Validation
 - [error] 감지된 intent와 category가 최종 프롬프트 목표에 반영되어 있는지 확인합니다.
