@@ -8,6 +8,14 @@ from .agent_adapter import (
 )
 from .claude_code_renderer import ClaudeCodePromptRenderer
 from .codex_renderer import CodexPromptRenderer
+from .execution_plan import (
+    EXECUTION_MODES,
+    AgentExecutionInput,
+    ExecutionBlockedReason,
+    ExecutionPlan,
+    PromptExecutionPlanner,
+    plan_prompt_execution,
+)
 from .intent_analyzer import (
     AnalyzerResult,
     Category,
@@ -48,6 +56,10 @@ __all__ = [
     "ClarificationQuestion",
     "ClaudeCodePromptRenderer",
     "CodexPromptRenderer",
+    "EXECUTION_MODES",
+    "AgentExecutionInput",
+    "ExecutionBlockedReason",
+    "ExecutionPlan",
     "FUTURE_AGENT_TARGETS",
     "FallbackInfo",
     "IntentAnalyzer",
@@ -60,6 +72,7 @@ __all__ = [
     "PatternMatch",
     "PatternPromptDefaults",
     "PromptAgentAdapter",
+    "PromptExecutionPlanner",
     "PromptPattern",
     "PromptQualityReport",
     "PromptQualityScorer",
@@ -77,4 +90,5 @@ __all__ = [
     "analyze_intent",
     "default_agent_adapter_registry",
     "optimize_prompt",
+    "plan_prompt_execution",
 ]

@@ -458,6 +458,7 @@ system_design 요청을 architecture 도메인으로 최적화합니다.
 | [`docs/prompt-pattern-library.md`](docs/prompt-pattern-library.md) | Pattern Library schema, category, pattern 추가 절차를 설명합니다. |
 | [`docs/prompt-quality-score.md`](docs/prompt-quality-score.md) | Prompt Quality Score dimension과 scoring example을 설명합니다. |
 | [`docs/codex-plugin-usage.md`](docs/codex-plugin-usage.md) | Codex Plugin 실행 방법과 명령 사용법을 설명합니다. |
+| [`docs/agent-execution-flow.md`](docs/agent-execution-flow.md) | 최적화 프롬프트를 내부 실행 입력으로 전달하는 자동 실행 준비 흐름을 설명합니다. |
 | [`docs/roadmap.md`](docs/roadmap.md) | v0.1부터 v1.0까지의 목표를 설명합니다. |
 | [`docs/test-strategy.md`](docs/test-strategy.md) | 테스트 계층과 로컬 검증 명령을 설명합니다. |
 

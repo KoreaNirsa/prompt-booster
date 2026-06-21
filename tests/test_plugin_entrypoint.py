@@ -81,6 +81,33 @@ class PluginEntrypointTest(unittest.TestCase):
         self.assertEqual("prompt.optimize", response["command"])
         self.assertIn("backend.jwt-auth", json.dumps(response["data"]["matchedPatterns"], ensure_ascii=False))
 
+    def test_cli_builds_execution_plan_with_clarification_answer(self):
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(ENTRYPOINT_PATH),
+                "prompt.executionPlan",
+                "--source-text",
+                "쇼핑몰 만들어줘",
+                "--target",
+                "codex",
+                "--execution-mode",
+                "auto_execute",
+                "--clarification-answer",
+                "business_scope=주문 생성까지 포함하고 결제는 제외",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        response = json.loads(completed.stdout)
+
+        self.assertTrue(response["ok"])
+        self.assertEqual("ready", response["data"]["executionPlan"]["status"])
+        self.assertTrue(response["data"]["executionPlan"]["executionReady"])
+
     def test_entrypoint_returns_contract_errors(self):
         entrypoint = load_entrypoint()
 
@@ -125,6 +152,32 @@ class PluginEntrypointTest(unittest.TestCase):
         self.assertTrue(response["data"]["patterns"])
         self.assertTrue(all(pattern["category"] == "backend" for pattern in response["data"]["patterns"]))
         self.assertIn("promptDefaults", response["data"]["patterns"][0])
+
+    def test_execution_plan_command_blocks_and_releases_auto_execution(self):
+        entrypoint = load_entrypoint()
+
+        blocked = entrypoint.run_command(
+            "prompt.executionPlan",
+            {"sourceText": "쇼핑몰 만들어줘", "target": "codex", "executionMode": "auto_execute"},
+        )
+        ready = entrypoint.run_command(
+            "prompt.executionPlan",
+            {
+                "sourceText": "쇼핑몰 만들어줘",
+                "target": "codex",
+                "executionMode": "auto_execute",
+                "clarificationAnswers": {"business_scope": "주문 생성까지 포함하고 결제는 제외"},
+            },
+        )
+
+        self.assertTrue(blocked["ok"])
+        self.assertEqual("blocked", blocked["data"]["executionPlan"]["status"])
+        self.assertIsNone(blocked["data"]["executionPlan"]["executionInput"])
+        self.assertEqual("business_scope", blocked["data"]["executionPlan"]["requiredQuestions"][0]["topic"])
+        self.assertTrue(ready["ok"])
+        self.assertEqual("ready", ready["data"]["executionPlan"]["status"])
+        self.assertTrue(ready["data"]["executionPlan"]["executionReady"])
+        self.assertIn("prompt", ready["data"]["executionPlan"]["executionInput"])
 
 
 if __name__ == "__main__":

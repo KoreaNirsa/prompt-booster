@@ -11,6 +11,7 @@ EXPECTED_COMMANDS = {
     "prompt.score",
     "prompt.explain",
     "prompt.patterns",
+    "prompt.executionPlan",
 }
 EXPECTED_ERRORS = {"empty_input", "invalid_options", "unsupported_target"}
 
@@ -79,6 +80,15 @@ class PluginCommandContractTest(unittest.TestCase):
         self.assertEqual([], command["input"]["required"])
         self.assertEqual({"category", "includeDefaults", "locale"}, optional_fields)
         self.assertEqual(["invalid_options"], command["errors"])
+
+    def test_execution_plan_command_defines_auto_execute_contract(self):
+        command = self.command_by_name("prompt.executionPlan")
+        optional_fields = {field["name"] for field in command["input"]["optional"]}
+
+        self.assertEqual(["sourceText"], [field["name"] for field in command["input"]["required"]])
+        self.assertEqual({"target", "executionMode", "clarificationAnswers"}, optional_fields)
+        self.assertEqual(["executionPlan"], command["output"]["required"])
+        self.assertEqual(["empty_input", "invalid_options", "unsupported_target"], command["errors"])
 
     def test_command_document_lists_all_contract_names_and_errors(self):
         document = DOC_PATH.read_text(encoding="utf-8")

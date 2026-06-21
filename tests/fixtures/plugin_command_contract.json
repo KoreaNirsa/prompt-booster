@@ -81,6 +81,46 @@
       "errors": ["empty_input", "invalid_options"]
     },
     {
+      "name": "prompt.executionPlan",
+      "description": "최적화된 프롬프트를 사용자 출력으로 반환할지 자동 실행 입력으로 전달할지 결정합니다.",
+      "input": {
+        "required": [
+          {
+            "name": "sourceText",
+            "type": "string",
+            "description": "실행 계획을 만들 사용자 원문 요청입니다."
+          }
+        ],
+        "optional": [
+          {
+            "name": "target",
+            "type": "string",
+            "allowedValues": ["neutral", "codex", "claude_code"],
+            "default": "codex",
+            "description": "자동 실행 입력을 만들 agent target입니다."
+          },
+          {
+            "name": "executionMode",
+            "type": "string",
+            "allowedValues": ["render_only", "auto_execute"],
+            "default": "render_only",
+            "description": "최적화 프롬프트를 사용자 출력으로 둘지 자동 실행 입력으로 만들지 결정합니다."
+          },
+          {
+            "name": "clarificationAnswers",
+            "type": "object",
+            "default": {},
+            "description": "질문 id 또는 topic을 key로 하는 사용자 답변입니다."
+          }
+        ]
+      },
+      "output": {
+        "required": ["executionPlan"],
+        "optional": []
+      },
+      "errors": ["empty_input", "invalid_options", "unsupported_target"]
+    },
+    {
       "name": "prompt.explain",
       "description": "Analyzer와 Optimizer가 어떤 근거로 결과를 만들었는지 설명합니다.",
       "input": {
