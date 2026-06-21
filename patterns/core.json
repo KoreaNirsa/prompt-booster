@@ -8,9 +8,11 @@
         "jwt",
         "authentication",
         "login",
+        "token",
         "spring security",
         "인증",
-        "로그인"
+        "로그인",
+        "토큰"
       ],
       "defaultLocale": "ko",
       "locales": {
@@ -18,8 +20,9 @@
           "req.jwt-flow": "JWT 인증 흐름을 Access Token과 Refresh Token 기준으로 분리해 정의합니다.",
           "acc.jwt-flow.issued": "로그인 성공 시 Access Token과 Refresh Token 발급 조건이 설명됩니다.",
           "acc.jwt-flow.rejected": "잘못된 인증 정보와 만료 토큰 처리 조건이 설명됩니다.",
-          "req.security-boundary": "보호된 API 접근 제어와 토큰 검증 실패 처리를 포함합니다.",
-          "acc.security-boundary": "인증 필터, 권한 확인, 예외 응답 경계가 구분됩니다.",
+          "req.jwt-security": "토큰 만료, refresh strategy, secret handling, 인증 실패 오류 응답을 명시합니다.",
+          "acc.jwt-expiration": "Access Token과 Refresh Token의 만료 기준과 재발급 정책이 분리됩니다.",
+          "acc.jwt-secret": "JWT secret은 코드에 하드코딩하지 않고 안전한 설정 경로로 주입됩니다.",
           "con.password": "비밀번호 원문 저장을 금지하고 해시 저장을 전제로 둡니다.",
           "con.layer": "Controller, Service, Repository 책임을 분리합니다.",
           "section.structure.title": "프로젝트 구조",
@@ -27,7 +30,7 @@
           "section.code.title": "핵심 코드",
           "section.code.description": "DTO, Service, Security 설정, Filter, Controller의 핵심 코드를 포함합니다.",
           "section.test.title": "테스트",
-          "section.test.description": "로그인 성공, 인증 실패, 토큰 만료 검증 테스트를 포함합니다.",
+          "section.test.description": "로그인 성공, 인증 실패, 토큰 만료, refresh 실패 검증 테스트를 포함합니다.",
           "val.jwt-failure": "JWT 만료, 서명 오류, 인증 실패 응답이 분리되어 있는지 확인합니다.",
           "val.layer": "Controller에 비즈니스 로직이 들어가지 않았는지 확인합니다."
         }
@@ -45,9 +48,10 @@
         {
           "category": "security",
           "priority": "must",
-          "descriptionRef": "req.security-boundary",
+          "descriptionRef": "req.jwt-security",
           "acceptanceCriteriaRefs": [
-            "acc.security-boundary"
+            "acc.jwt-expiration",
+            "acc.jwt-secret"
           ]
         }
       ],
@@ -91,6 +95,583 @@
           "descriptionRef": "val.layer"
         }
       ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation"
+        ],
+        "domainSignals": [
+          "spring security",
+          "jwt",
+          "token",
+          "auth"
+        ],
+        "confidenceWeight": 5
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "backend.spring-rest-api",
+      "category": "backend",
+      "keywords": [
+        "spring rest",
+        "rest api",
+        "api",
+        "controller",
+        "endpoint",
+        "crud",
+        "게시판"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.contract": "API contract를 HTTP method, path, request, response, status code 기준으로 정의합니다.",
+          "acc.contract": "각 endpoint의 성공 응답과 실패 응답이 구분됩니다.",
+          "req.persistence": "DTO, Service, Repository, Entity 경계를 유지하며 영속성 흐름을 설계합니다.",
+          "acc.persistence": "입력 검증, 트랜잭션 경계, 저장소 접근 책임이 분리됩니다.",
+          "con.validation": "요청 DTO 검증과 비즈니스 검증을 혼합하지 않습니다.",
+          "con.error": "검증 실패와 도메인 오류는 명확한 이유를 가진 응답으로 처리합니다.",
+          "section.contract.title": "API 명세",
+          "section.contract.description": "Endpoint별 method, path, request, response, status code를 정리합니다.",
+          "section.code.title": "계층별 코드",
+          "section.code.description": "Request/Response DTO, Controller, Service, Repository, Entity 코드를 포함합니다.",
+          "section.test.title": "테스트 기대값",
+          "section.test.description": "성공, 검증 실패, 영속성, 오류 응답 테스트를 포함합니다.",
+          "val.contract": "API contract와 구현 코드의 request/response 필드가 일치하는지 확인합니다.",
+          "val.persistence": "Service 트랜잭션과 Repository 책임이 분리되어 있는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.contract",
+          "acceptanceCriteriaRefs": [
+            "acc.contract"
+          ]
+        },
+        {
+          "category": "data",
+          "priority": "must",
+          "descriptionRef": "req.persistence",
+          "acceptanceCriteriaRefs": [
+            "acc.persistence"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.validation"
+        },
+        {
+          "scope": "testing",
+          "descriptionRef": "con.error"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.contract.title",
+            "descriptionRef": "section.contract.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.code.title",
+            "descriptionRef": "section.code.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.test.title",
+            "descriptionRef": "section.test.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.contract"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.persistence"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "spring",
+          "rest",
+          "api",
+          "persistence"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "backend.spring-security",
+      "category": "backend",
+      "keywords": [
+        "spring security",
+        "security",
+        "authorization",
+        "authentication",
+        "filter chain",
+        "보안",
+        "권한",
+        "인증"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.security-config": "Spring Security 설정을 filter chain, endpoint authorization, authentication provider 기준으로 정의합니다.",
+          "acc.security-config": "보호 endpoint와 공개 endpoint가 명확히 구분됩니다.",
+          "req.error-handling": "인증 실패와 권한 부족 오류 응답을 분리합니다.",
+          "acc.error-handling": "401과 403 응답 조건과 메시지가 구분됩니다.",
+          "con.secret": "secret, token, credential 값은 코드와 로그에 노출하지 않습니다.",
+          "con.test": "보안 설정은 통합 테스트로 검증합니다.",
+          "section.config.title": "Security 설정",
+          "section.config.description": "SecurityFilterChain, 인증 provider, authorization rule을 설명합니다.",
+          "section.boundary.title": "보안 경계",
+          "section.boundary.description": "공개/보호 endpoint와 예외 응답 정책을 정리합니다.",
+          "section.test.title": "보안 테스트",
+          "section.test.description": "인증 성공, 미인증, 권한 부족, 예외 응답 테스트를 포함합니다.",
+          "val.secret": "secret 또는 credential이 코드, 로그, 예시에 노출되지 않는지 확인합니다.",
+          "val.status": "401과 403 조건이 혼동되지 않는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.security-config",
+          "acceptanceCriteriaRefs": [
+            "acc.security-config"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.error-handling",
+          "acceptanceCriteriaRefs": [
+            "acc.error-handling"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "security",
+          "descriptionRef": "con.secret"
+        },
+        {
+          "scope": "testing",
+          "descriptionRef": "con.test"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.config.title",
+            "descriptionRef": "section.config.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.boundary.title",
+            "descriptionRef": "section.boundary.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.test.title",
+            "descriptionRef": "section.test.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.secret"
+        },
+        {
+          "severity": "error",
+          "descriptionRef": "val.status"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "spring security",
+          "authorization",
+          "authentication",
+          "filter chain"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "backend.oauth2-login",
+      "category": "backend",
+      "keywords": [
+        "oauth2",
+        "oauth",
+        "social login",
+        "google login",
+        "provider",
+        "소셜 로그인",
+        "OAuth2"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.provider": "OAuth2 provider, redirect URI, scope, user mapping을 명시합니다.",
+          "acc.provider": "provider별 사용자 식별자와 이메일 검증 기준이 설명됩니다.",
+          "req.session": "OAuth2 로그인 후 세션 또는 토큰 발급 전략을 명확히 합니다.",
+          "acc.session": "가입/로그인 분기, refresh strategy, 실패 redirect가 구분됩니다.",
+          "con.secret": "client secret과 provider credential은 환경 변수 또는 secret store를 사용합니다.",
+          "con.error": "provider 오류, scope 거부, callback 실패를 사용자 오류와 분리합니다.",
+          "section.flow.title": "OAuth2 흐름",
+          "section.flow.description": "authorization request, callback, user mapping, session/token 발급 흐름을 설명합니다.",
+          "section.config.title": "Provider 설정",
+          "section.config.description": "redirect URI, scope, client 설정, 보안 저장 방식을 정리합니다.",
+          "section.test.title": "인증 테스트",
+          "section.test.description": "provider 성공, callback 실패, 가입 분기, credential 누락 테스트를 포함합니다.",
+          "val.secret": "client secret이 코드와 로그에 노출되지 않는지 확인합니다.",
+          "val.callback": "callback 실패와 provider 오류가 명확히 처리되는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.provider",
+          "acceptanceCriteriaRefs": [
+            "acc.provider"
+          ]
+        },
+        {
+          "category": "security",
+          "priority": "must",
+          "descriptionRef": "req.session",
+          "acceptanceCriteriaRefs": [
+            "acc.session"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "security",
+          "descriptionRef": "con.secret"
+        },
+        {
+          "scope": "testing",
+          "descriptionRef": "con.error"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.flow.title",
+            "descriptionRef": "section.flow.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.config.title",
+            "descriptionRef": "section.config.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.test.title",
+            "descriptionRef": "section.test.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.secret"
+        },
+        {
+          "severity": "warning",
+          "descriptionRef": "val.callback"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation"
+        ],
+        "domainSignals": [
+          "oauth2",
+          "provider",
+          "social login",
+          "callback"
+        ],
+        "confidenceWeight": 4
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "backend.batch-processing",
+      "category": "backend",
+      "keywords": [
+        "batch",
+        "spring batch",
+        "job",
+        "chunk",
+        "retry",
+        "배치",
+        "일괄 처리"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.job": "Batch job, step, reader, processor, writer 책임을 분리합니다.",
+          "acc.job": "입력 데이터, 처리 단위, 출력 저장소가 명확히 정의됩니다.",
+          "req.failure": "retry, skip, idempotency, 재실행 전략을 명시합니다.",
+          "acc.failure": "실패한 item 처리와 job 재시작 기준이 설명됩니다.",
+          "con.transaction": "chunk transaction과 외부 side effect를 분리합니다.",
+          "con.observability": "job 실행 결과와 실패 원인을 관측할 수 있게 기록합니다.",
+          "section.job.title": "Batch 설계",
+          "section.job.description": "Job, Step, Reader, Processor, Writer 구조를 설명합니다.",
+          "section.failure.title": "실패 처리",
+          "section.failure.description": "retry, skip, idempotency, 재실행 정책을 정리합니다.",
+          "section.test.title": "배치 테스트",
+          "section.test.description": "정상 처리, 부분 실패, 재실행, 중복 실행 방지 테스트를 포함합니다.",
+          "val.idempotency": "재실행 시 중복 처리나 데이터 손상이 없는지 확인합니다.",
+          "val.transaction": "트랜잭션 경계가 처리 단위와 일치하는지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.job",
+          "acceptanceCriteriaRefs": [
+            "acc.job"
+          ]
+        },
+        {
+          "category": "nonFunctional",
+          "priority": "must",
+          "descriptionRef": "req.failure",
+          "acceptanceCriteriaRefs": [
+            "acc.failure"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "maintainability",
+          "descriptionRef": "con.transaction"
+        },
+        {
+          "scope": "testing",
+          "descriptionRef": "con.observability"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.job.title",
+            "descriptionRef": "section.job.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.failure.title",
+            "descriptionRef": "section.failure.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.test.title",
+            "descriptionRef": "section.test.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.idempotency"
+        },
+        {
+          "severity": "warning",
+          "descriptionRef": "val.transaction"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "batch",
+          "job",
+          "chunk",
+          "retry"
+        ],
+        "confidenceWeight": 3
+      },
+      "renderingHints": {
+        "supportedLocales": [
+          "ko"
+        ],
+        "agentProfiles": [
+          "neutral",
+          "codex",
+          "claude"
+        ]
+      }
+    },
+    {
+      "id": "backend.scheduler",
+      "category": "backend",
+      "keywords": [
+        "scheduler",
+        "scheduled",
+        "cron",
+        "background job",
+        "스케줄러",
+        "스케줄",
+        "크론"
+      ],
+      "defaultLocale": "ko",
+      "locales": {
+        "ko": {
+          "req.schedule": "실행 주기, timezone, 동시 실행 정책을 명시합니다.",
+          "acc.schedule": "cron 표현식, 수동 실행 가능 여부, 중복 실행 방지 조건이 설명됩니다.",
+          "req.failure": "실패 재시도, timeout, 관측 가능한 실행 기록을 포함합니다.",
+          "acc.failure": "실패 시 알림, 재시도 횟수, 다음 실행 영향이 구분됩니다.",
+          "con.lock": "분산 환경에서는 lock 또는 idempotency를 고려합니다.",
+          "con.config": "스케줄 설정은 환경별로 바꿀 수 있어야 합니다.",
+          "section.schedule.title": "스케줄 정책",
+          "section.schedule.description": "cron, timezone, 동시 실행, 환경별 설정을 정리합니다.",
+          "section.execution.title": "실행 로직",
+          "section.execution.description": "Service 책임, timeout, retry, 실패 처리를 설명합니다.",
+          "section.test.title": "스케줄 테스트",
+          "section.test.description": "중복 실행 방지, 실패 재시도, 설정 변경 테스트를 포함합니다.",
+          "val.lock": "동시 실행과 중복 처리 위험이 제어되는지 확인합니다.",
+          "val.config": "환경별 설정과 기본값이 안전한지 확인합니다."
+        }
+      },
+      "defaultRequirements": [
+        {
+          "category": "functional",
+          "priority": "must",
+          "descriptionRef": "req.schedule",
+          "acceptanceCriteriaRefs": [
+            "acc.schedule"
+          ]
+        },
+        {
+          "category": "nonFunctional",
+          "priority": "must",
+          "descriptionRef": "req.failure",
+          "acceptanceCriteriaRefs": [
+            "acc.failure"
+          ]
+        }
+      ],
+      "defaultConstraints": [
+        {
+          "scope": "architecture",
+          "descriptionRef": "con.lock"
+        },
+        {
+          "scope": "compatibility",
+          "descriptionRef": "con.config"
+        }
+      ],
+      "recommendedOutputFormat": {
+        "format": "mixed",
+        "sections": [
+          {
+            "titleRef": "section.schedule.title",
+            "descriptionRef": "section.schedule.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.execution.title",
+            "descriptionRef": "section.execution.description",
+            "required": true
+          },
+          {
+            "titleRef": "section.test.title",
+            "descriptionRef": "section.test.description",
+            "required": true
+          }
+        ]
+      },
+      "validationItems": [
+        {
+          "severity": "error",
+          "descriptionRef": "val.lock"
+        },
+        {
+          "severity": "warning",
+          "descriptionRef": "val.config"
+        }
+      ],
+      "matchingMetadata": {
+        "intentHints": [
+          "code_generation",
+          "system_design"
+        ],
+        "domainSignals": [
+          "scheduler",
+          "cron",
+          "background job",
+          "timeout"
+        ],
+        "confidenceWeight": 3
+      },
       "renderingHints": {
         "supportedLocales": [
           "ko"

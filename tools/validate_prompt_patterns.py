@@ -19,6 +19,14 @@ EXPECTED_PATTERN_CATEGORIES = {
     "devops",
     "architecture",
 }
+EXPECTED_BACKEND_PATTERNS = {
+    "backend.spring-rest-api",
+    "backend.spring-security",
+    "backend.jwt-auth",
+    "backend.oauth2-login",
+    "backend.batch-processing",
+    "backend.scheduler",
+}
 
 
 def load_schema_validator():
@@ -44,6 +52,8 @@ def main():
     validator.validate_against_schema(schema, payload)
     library = PatternLibrary.from_dict(payload)
     require(library.patterns, "패턴 정의가 비어 있습니다.")
+    pattern_ids = {pattern.id for pattern in library.patterns}
+    require(EXPECTED_BACKEND_PATTERNS <= pattern_ids, "필수 백엔드 패턴이 누락되었습니다.")
     print("Prompt Pattern Library 정의가 유효합니다.")
 
 
