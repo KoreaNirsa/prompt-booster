@@ -36,11 +36,12 @@ class PromptRendererTest(unittest.TestCase):
 
         self.assertEqual(renderer.render(prompt_ir), renderer.render(prompt_ir))
 
-    def test_renderer_does_not_emit_target_specific_assumption(self):
-        result = optimize_prompt("JWT 로그인 구현해줘", target="codex")
+    def test_neutral_renderer_does_not_emit_target_specific_assumption(self):
+        result = optimize_prompt("JWT 로그인 구현해줘")
 
         self.assertTrue(result.ok)
-        self.assertIn("target=codex", result.prompt_ir["context"]["assumptions"])
+        self.assertIn("target=neutral", result.prompt_ir["context"]["assumptions"])
+        self.assertNotIn("target=neutral", result.rendered_prompt)
         self.assertNotIn("codex", result.rendered_prompt.casefold())
 
     def test_renderer_omits_empty_sections_and_deduplicates_lines(self):

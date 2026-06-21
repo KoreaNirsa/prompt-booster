@@ -107,8 +107,9 @@ class PromptOptimizerTest(unittest.TestCase):
         self.assertIn("clarificationQuestions", result.to_dict())
         self.assertEqual("backend.jwt-auth", result.pattern_matches[0].pattern.id)
         self.assertIn("target=codex", result.prompt_ir["context"]["assumptions"])
-        self.assertIn("## Role", result.rendered_prompt)
-        self.assertIn("## Validation", result.rendered_prompt)
+        self.assertIn("# Codex Task Prompt", result.rendered_prompt)
+        self.assertIn("## Task Objective", result.rendered_prompt)
+        self.assertIn("## Verification Steps", result.rendered_prompt)
         self.assertIn("Access Token", result.rendered_prompt)
 
     def test_optimizer_uses_system_design_and_architecture_classification(self):

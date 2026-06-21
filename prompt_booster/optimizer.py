@@ -6,6 +6,7 @@ import hashlib
 from os import PathLike
 
 from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
+from .codex_renderer import CodexPromptRenderer
 from .intent_analyzer import AnalyzerResult, Category, IntentAnalyzer, IntentType
 from .pattern_library import PatternLibrary, PatternMatch
 from .prompt_renderer import PromptRenderer
@@ -81,6 +82,7 @@ class PromptOptimizer:
         self._analyzer = analyzer or IntentAnalyzer()
         self._rif_engine = rif_engine or RifEngine()
         self._renderer = renderer or PromptRenderer()
+        self._codex_renderer = CodexPromptRenderer()
         self._adaptive_grill = adaptive_grill or AdaptiveGrillMe()
         self._quality_scorer = quality_scorer or PromptQualityScorer()
         self._pattern_library = self._resolve_pattern_library(pattern_library)
@@ -153,7 +155,7 @@ class PromptOptimizer:
         prompt_ir["qualityScore"] = optimized_quality_score.to_prompt_ir_score()
 
         pipeline_steps.append("render_prompt")
-        rendered_prompt = self._renderer.render(prompt_ir)
+        rendered_prompt = self._render_prompt(prompt_ir, selected_target)
 
         return OptimizerResult(
             source_text=source_text,
@@ -168,6 +170,11 @@ class PromptOptimizer:
             errors=(),
             pipeline_steps=tuple(pipeline_steps),
         )
+
+    def _render_prompt(self, prompt_ir: dict[str, object], target: str) -> str:
+        if target == "codex":
+            return self._codex_renderer.render(prompt_ir)
+        return self._renderer.render(prompt_ir)
 
     def _validate_input(self, source_text: str, target: str) -> ValidationIssue | None:
         normalized = " ".join(source_text.split())

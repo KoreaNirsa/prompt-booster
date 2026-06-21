@@ -1,4 +1,5 @@
 from .adaptive_grill import AdaptiveGrillMe, ClarificationQuestion
+from .codex_renderer import CodexPromptRenderer
 from .intent_analyzer import (
     AnalyzerResult,
     Category,
@@ -36,6 +37,7 @@ __all__ = [
     "AnalyzerResult",
     "Category",
     "ClarificationQuestion",
+    "CodexPromptRenderer",
     "FallbackInfo",
     "IntentAnalyzer",
     "IntentType",
